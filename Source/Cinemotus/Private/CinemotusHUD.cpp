@@ -24,9 +24,9 @@ void ACinemotusHUD::DrawHUD()
 	//Call to the parent versions of DrawHUD
 	Super::DrawHUD();
 
-	ACinemotusCharacter* MyCharacter = Cast<ACinemotusCharacter>(UGameplayStatics::GetPlayerPawn(this, 0));
-	FString PowerLevelString = FString::Printf(TEXT("%10.1f"), FMath::Abs(MyCharacter->PowerLevel));
-	DrawText(PowerLevelString, FColor::White, 50, 50, HUDFont);
+//	ACinemotusCharacter* MyCharacter = Cast<ACinemotusCharacter>(UGameplayStatics::GetPlayerPawn(this, 0));
+//	FString PowerLevelString = FString::Printf(TEXT("%10.1f"), FMath::Abs(MyCharacter->PowerLevel));
+//	DrawText(PowerLevelString, FColor::White, 50, 50, HUDFont);
 
 	//ACinemotusGameMode * MyGameMode = Cast<ACinemotusGameMode>(UGameplayStatics::GetGameMode(this));
 

@@ -3,6 +3,7 @@
 #include "GameFramework/Character.h"
 #include "CinemotusCharacter.generated.h"
 
+
 UCLASS(config=Game)
 class ACinemotusCharacter : public ACharacter
 {
@@ -15,6 +16,13 @@ class ACinemotusCharacter : public ACharacter
 	/** Follow camera */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category=Camera)
 	TSubobjectPtr<class UCameraComponent> FollowCamera;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera)
+		TSubobjectPtr<class UArrowComponent> anArrorComponent;
+
+//	TSubobjectPtr<class AArrow> GetFollowCamera() { return FollowCamera; }
+	//UChildActorComponent
+	
 
 	/** Base turn rate, in deg/sec. Other scaling may affect final turn rate. */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category=Camera)
@@ -53,5 +61,8 @@ protected:
 	// APawn interface
 	virtual void SetupPlayerInputComponent(class UInputComponent* InputComponent) override;
 	// End of APawn interface
+
+	void OnSetCameraPressed();
+	
 };
 

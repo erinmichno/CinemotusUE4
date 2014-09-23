@@ -29,7 +29,7 @@ void AHydraPawn::BeginPlay()
 void AHydraPawn::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
+	//"Blueprint'/Game/Blueprints/MyCharacter.MyCharacter'"
 	//Required Hydra Tick
 	HydraTick(DeltaTime);
 }

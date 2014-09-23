@@ -2,6 +2,9 @@
 
 #include "Cinemotus.h"
 #include "CinemotusCharacter.h"
+#include "CinemotusGameMode.h"
+#include "Camera/CameraActor.h"
+#include "Engine.h"
 
 //////////////////////////////////////////////////////////////////////////
 // ACinemotusCharacter
@@ -40,8 +43,21 @@ ACinemotusCharacter::ACinemotusCharacter(const class FPostConstructInitializePro
 	FollowCamera->AttachTo(CameraBoom, USpringArmComponent::SocketName); // Attach the camera to the end of the boom and let the boom adjust to match the controller orientation
 	FollowCamera->bUseControllerViewRotation = false; // Camera does not rotate relative to arm
 
+
+	anArrorComponent = PCIP.CreateDefaultSubobject<UArrowComponent>(this, TEXT("anArrorComponent"));
+	anArrorComponent->AttachTo(RootComponent);
+	//FTransform(const FQuat& InRotation, const FVector& InTranslation,
+	FQuat quat(1, 0, 0, 3.14/2.0f);
+	FTransform transform(quat, FVector(0, 0, 0));
+	//anArrorComponent->SetWorldTransform(transform);
+	//anArrorComponent->TargetArmLength = 300.0f; // The camera follows at this distance behind the character	
+	
+
 	// Note: The skeletal mesh and anim blueprint references on the Mesh component (inherited from Character) 
 	// are set in the derived blueprint asset named MyCharacter (to avoid direct content references in C++)
+
+	bFindCameraComponentWhenViewTarget = true;
+	Tags.Add(TEXT("CinemotusCharacter"));
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -52,6 +68,8 @@ void ACinemotusCharacter::SetupPlayerInputComponent(class UInputComponent* Input
 	// Set up gameplay key bindings
 	check(InputComponent);
 	InputComponent->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump);
+
+	InputComponent->BindAction("AttachCam", IE_Pressed, this, &ACinemotusCharacter::OnSetCameraPressed);
 
 	InputComponent->BindAxis("MoveForward", this, &ACinemotusCharacter::MoveForward);
 	InputComponent->BindAxis("MoveRight", this, &ACinemotusCharacter::MoveRight);
@@ -117,4 +135,40 @@ void ACinemotusCharacter::MoveRight(float Value)
 		// add movement in that direction
 		AddMovementInput(Direction, Value);
 	}
+}
+
+
+void ACinemotusCharacter::OnSetCameraPressed()
+{
+
+	//GEngine->AddOnScreenDebugMessage(-1, .5f, FColor::Yellow, TEXT("FunctionCalled"));
+	ACinemotusGameMode* MyGameMode = Cast<ACinemotusGameMode>(UGameplayStatics::GetGameMode(this));
+
+	TArray<ACameraActor*> camActors = MyGameMode->GetCameraActors();
+
+	USceneComponent* rootCamComponent = camActors[0]->GetRootComponent();
+	//rootCamComponent->GetName();
+	
+	GEngine->AddOnScreenDebugMessage(-1, .5f, FColor::Yellow, rootCamComponent->GetName());
+
+
+	rootCamComponent->AttachTo(anArrorComponent);
+
+	//rootCamComponent->SetWorldTransform(FTransform::Identity);
+	//for (int32 iCollected = 0; iCollected < CollectedActors.Num(); ++iCollected)
+	//{
+	//	// Cast the collected Actor to ABatteryPickup.
+	//	ABatteryPickup* const TestBattery = Cast<ABatteryPickup>(CollectedActors[iCollected]);
+
+	//	// If the cast is successful, and the battery is valid and active
+	//	if (TestBattery && !TestBattery->IsPendingKill() && TestBattery->bIsActive)
+	//	{
+	//		// Store its battery power for adding to the character's power.
+	//		BatteryPower = BatteryPower + TestBattery->PowerLevel;
+	//		// Deactivate the battery
+	//		TestBattery->bIsActive = false;
+	//		// Call the battery's OnPickedUp function
+	//		TestBattery->OnPickedUp();
+	//	}
+	//}
 }

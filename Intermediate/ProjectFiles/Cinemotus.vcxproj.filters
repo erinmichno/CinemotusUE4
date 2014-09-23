@@ -1,151 +1,187 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
+
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <ItemGroup>
-    <None Include="..\..\Cinemotus.uproject" />
-    <Filter Include="Source">
-      <UniqueIdentifier>{35A592DA-9216-48AC-B7B3-9DBDF4CFFB5A}</UniqueIdentifier>
-    </Filter>
-    <None Include="..\..\Source\Cinemotus.Target.cs">
-      <Filter>Source</Filter>
-    </None>
-    <None Include="..\..\Source\CinemotusEditor.Target.cs">
-      <Filter>Source</Filter>
-    </None>
-    <Filter Include="Config">
-      <UniqueIdentifier>{BC457C20-3832-4BF4-B271-D82655BB57E2}</UniqueIdentifier>
-    </Filter>
-    <None Include="..\..\Config\DefaultEditor.ini">
-      <Filter>Config</Filter>
-    </None>
-    <None Include="..\..\Config\DefaultEngine.ini">
-      <Filter>Config</Filter>
-    </None>
-    <None Include="..\..\Config\DefaultGame.ini">
-      <Filter>Config</Filter>
-    </None>
-    <None Include="..\..\Config\DefaultInput.ini">
-      <Filter>Config</Filter>
-    </None>
-    <Filter Include="Plugins">
-      <UniqueIdentifier>{4406DC8C-78DA-4A04-81EB-E65A16127799}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Plugins\HydraPlugin">
-      <UniqueIdentifier>{4BE71D98-DF9D-40B0-9042-570A2F03A4FD}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Plugins\HydraPlugin\Source">
-      <UniqueIdentifier>{ADE89BF7-CDCE-4505-A301-A4AFCFC8CF05}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Plugins\HydraPlugin\Source\HydraPlugin">
-      <UniqueIdentifier>{149FFE85-499D-42A2-9BDE-1678C6DB701B}</UniqueIdentifier>
-    </Filter>
-    <None Include="..\..\Plugins\HydraPlugin\Source\HydraPlugin\HydraPlugin.Build.cs">
-      <Filter>Plugins\HydraPlugin\Source\HydraPlugin</Filter>
-    </None>
-    <Filter Include="Plugins\HydraPlugin\Source\HydraPlugin\Classes">
-      <UniqueIdentifier>{987DCAEE-621B-47C6-BD79-2F5B84B80F4B}</UniqueIdentifier>
-    </Filter>
-    <ClInclude Include="..\..\Plugins\HydraPlugin\Source\HydraPlugin\Classes\HydraPlayerController.h">
-      <Filter>Plugins\HydraPlugin\Source\HydraPlugin\Classes</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Plugins\HydraPlugin\Source\HydraPlugin\Classes\HydraPluginActor.h">
-      <Filter>Plugins\HydraPlugin\Source\HydraPlugin\Classes</Filter>
-    </ClInclude>
-    <Filter Include="Plugins\HydraPlugin\Source\HydraPlugin\Private">
-      <UniqueIdentifier>{657D661F-8121-4F6E-B690-59C32E6D2275}</UniqueIdentifier>
-    </Filter>
-    <ClCompile Include="..\..\Plugins\HydraPlugin\Source\HydraPlugin\Private\FHydraPlugin.cpp">
-      <Filter>Plugins\HydraPlugin\Source\HydraPlugin\Private</Filter>
-    </ClCompile>
-    <ClInclude Include="..\..\Plugins\HydraPlugin\Source\HydraPlugin\Private\FHydraPlugin.h">
-      <Filter>Plugins\HydraPlugin\Source\HydraPlugin\Private</Filter>
-    </ClInclude>
-    <ClCompile Include="..\..\Plugins\HydraPlugin\Source\HydraPlugin\Private\HydraPlayerController.cpp">
-      <Filter>Plugins\HydraPlugin\Source\HydraPlugin\Private</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Plugins\HydraPlugin\Source\HydraPlugin\Private\HydraPluginActor.cpp">
-      <Filter>Plugins\HydraPlugin\Source\HydraPlugin\Private</Filter>
-    </ClCompile>
-    <ClInclude Include="..\..\Plugins\HydraPlugin\Source\HydraPlugin\Private\HydraPluginPrivatePCH.h">
-      <Filter>Plugins\HydraPlugin\Source\HydraPlugin\Private</Filter>
-    </ClInclude>
-    <Filter Include="Plugins\HydraPlugin\Source\HydraPlugin\Public">
-      <UniqueIdentifier>{78308E66-7401-442C-9B88-1C30989E1588}</UniqueIdentifier>
-    </Filter>
-    <ClInclude Include="..\..\Plugins\HydraPlugin\Source\HydraPlugin\Public\HydraDelegate.h">
-      <Filter>Plugins\HydraPlugin\Source\HydraPlugin\Public</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Plugins\HydraPlugin\Source\HydraPlugin\Public\IHydraPlugin.h">
-      <Filter>Plugins\HydraPlugin\Source\HydraPlugin\Public</Filter>
-    </ClInclude>
-    <None Include="..\..\Plugins\HydraPlugin\HydraPlugin.uplugin">
-      <Filter>Plugins\HydraPlugin</Filter>
-    </None>
-    <Filter Include="Plugins\HydraPlugin\Resources">
-      <UniqueIdentifier>{F8BDF8F4-B86B-45E8-8360-3408D523E4F1}</UniqueIdentifier>
-    </Filter>
-    <None Include="..\..\Plugins\HydraPlugin\Resources\Icon128.png">
-      <Filter>Plugins\HydraPlugin\Resources</Filter>
-    </None>
-    <Filter Include="Source\Cinemotus">
-      <UniqueIdentifier>{03CFA561-C0DD-41CC-9380-307A0CCA80F5}</UniqueIdentifier>
-    </Filter>
-    <None Include="..\..\Source\Cinemotus\Cinemotus.Build.cs">
-      <Filter>Source\Cinemotus</Filter>
-    </None>
-    <Filter Include="Source\Cinemotus\Private">
-      <UniqueIdentifier>{2A4F0769-B3CE-4835-A102-B9630FA2A64B}</UniqueIdentifier>
-    </Filter>
-    <ClCompile Include="..\..\Source\Cinemotus\Private\Cinemotus.cpp">
-      <Filter>Source\Cinemotus\Private</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\Cinemotus\Private\CinemotusCharacter.cpp">
-      <Filter>Source\Cinemotus\Private</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\Cinemotus\Private\CinemotusGameMode.cpp">
-      <Filter>Source\Cinemotus\Private</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\Cinemotus\Private\CinemotusHUD.cpp">
-      <Filter>Source\Cinemotus\Private</Filter>
-    </ClCompile>
-    <Filter Include="Source\Cinemotus\Public">
-      <UniqueIdentifier>{67B2F558-D045-4084-B085-81EB749566E8}</UniqueIdentifier>
-    </Filter>
-    <ClInclude Include="..\..\Source\Cinemotus\Public\Cinemotus.h">
-      <Filter>Source\Cinemotus\Public</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\Cinemotus\Public\CinemotusCharacter.h">
-      <Filter>Source\Cinemotus\Public</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\Cinemotus\Public\CinemotusGameMode.h">
-      <Filter>Source\Cinemotus\Public</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\Cinemotus\Public\CinemotusHUD.h">
-      <Filter>Source\Cinemotus\Public</Filter>
-    </ClInclude>
-    <Filter Include="Source\Cinemotus\Resources">
-      <UniqueIdentifier>{1C7A92BD-4D66-485E-8B5C-5BDC259FF56C}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Cinemotus\Resources\Windows">
-      <UniqueIdentifier>{F097CEDD-C887-4713-8DD9-6ED4BA0BC441}</UniqueIdentifier>
-    </Filter>
-    <None Include="..\..\Source\Cinemotus\Resources\Windows\Cinemotus.ico">
-      <Filter>Source\Cinemotus\Resources\Windows</Filter>
-    </None>
-    <ResourceCompile Include="..\..\Source\Cinemotus\Resources\Windows\Cinemotus.rc">
-      <Filter>Source\Cinemotus\Resources\Windows</Filter>
-    </ResourceCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="..\..\Source\Cinemotus\Public\HydraPawn.h">
-      <Filter>Source\Cinemotus\Public</Filter>
-    </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="..\..\Source\Cinemotus\Private\HydraPawn.cpp">
-      <Filter>Source\Cinemotus\Private</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Plugins\HydraPlugin\Source\HydraPlugin\Private\HydraDelegate.cpp">
-      <Filter>Plugins\HydraPlugin\Source\HydraPlugin\Private</Filter>
-    </ClCompile>
-  </ItemGroup>
+	<ItemGroup>
+		<None Include="..\..\Cinemotus.uproject" />
+		<Filter Include="Source">
+			<UniqueIdentifier>{D5B5C747-EB04-465B-ADD3-D82A2CA57434}</UniqueIdentifier>
+		</Filter>
+		<None Include="..\..\Source\Cinemotus.Target.cs">
+			<Filter>Source</Filter>
+		</None >
+		<None Include="..\..\Source\CinemotusEditor.Target.cs">
+			<Filter>Source</Filter>
+		</None >
+		<Filter Include="Config">
+			<UniqueIdentifier>{690EECCF-F63A-42D2-A8EC-351DB64C6BC2}</UniqueIdentifier>
+		</Filter>
+		<None Include="..\..\Config\DefaultEditor.ini">
+			<Filter>Config</Filter>
+		</None >
+		<None Include="..\..\Config\DefaultEngine.ini">
+			<Filter>Config</Filter>
+		</None >
+		<None Include="..\..\Config\DefaultGame.ini">
+			<Filter>Config</Filter>
+		</None >
+		<None Include="..\..\Config\DefaultInput.ini">
+			<Filter>Config</Filter>
+		</None >
+		<Filter Include="Plugins">
+			<UniqueIdentifier>{364551F8-1616-4F06-98AA-F83BD5E5FEE0}</UniqueIdentifier>
+		</Filter>
+		<Filter Include="Plugins\HydraPlugin">
+			<UniqueIdentifier>{FD57D887-AC22-4CDA-8F04-44CAB8893857}</UniqueIdentifier>
+		</Filter>
+		<Filter Include="Plugins\HydraPlugin\Source">
+			<UniqueIdentifier>{1FF01C89-3633-41EE-A1CA-E1C146605AAD}</UniqueIdentifier>
+		</Filter>
+		<Filter Include="Plugins\HydraPlugin\Source\HydraPlugin">
+			<UniqueIdentifier>{69C2F9D5-EA6B-4B05-A384-76E4DC6A0616}</UniqueIdentifier>
+		</Filter>
+		<None Include="..\..\Plugins\HydraPlugin\Source\HydraPlugin\HydraPlugin.Build.cs">
+			<Filter>Plugins\HydraPlugin\Source\HydraPlugin</Filter>
+		</None >
+		<Filter Include="Plugins\HydraPlugin\Source\HydraPlugin\Classes">
+			<UniqueIdentifier>{7BF20E8B-6D36-4DFA-A70F-7513DD8C27AC}</UniqueIdentifier>
+		</Filter>
+		<ClInclude Include="..\..\Plugins\HydraPlugin\Source\HydraPlugin\Classes\HydraPlayerController.h">
+			<Filter>Plugins\HydraPlugin\Source\HydraPlugin\Classes</Filter>
+		</ClInclude >
+		<ClInclude Include="..\..\Plugins\HydraPlugin\Source\HydraPlugin\Classes\HydraPluginActor.h">
+			<Filter>Plugins\HydraPlugin\Source\HydraPlugin\Classes</Filter>
+		</ClInclude >
+		<Filter Include="Plugins\HydraPlugin\Source\HydraPlugin\Private">
+			<UniqueIdentifier>{5FA4F01D-E736-4290-806C-3BDFBAB0487C}</UniqueIdentifier>
+		</Filter>
+		<ClCompile Include="..\..\Plugins\HydraPlugin\Source\HydraPlugin\Private\FHydraPlugin.cpp">
+			<Filter>Plugins\HydraPlugin\Source\HydraPlugin\Private</Filter>
+		</ClCompile >
+		<ClInclude Include="..\..\Plugins\HydraPlugin\Source\HydraPlugin\Private\FHydraPlugin.h">
+			<Filter>Plugins\HydraPlugin\Source\HydraPlugin\Private</Filter>
+		</ClInclude >
+		<ClCompile Include="..\..\Plugins\HydraPlugin\Source\HydraPlugin\Private\HydraDelegate.cpp">
+			<Filter>Plugins\HydraPlugin\Source\HydraPlugin\Private</Filter>
+		</ClCompile >
+		<ClCompile Include="..\..\Plugins\HydraPlugin\Source\HydraPlugin\Private\HydraPlayerController.cpp">
+			<Filter>Plugins\HydraPlugin\Source\HydraPlugin\Private</Filter>
+		</ClCompile >
+		<ClCompile Include="..\..\Plugins\HydraPlugin\Source\HydraPlugin\Private\HydraPluginActor.cpp">
+			<Filter>Plugins\HydraPlugin\Source\HydraPlugin\Private</Filter>
+		</ClCompile >
+		<ClInclude Include="..\..\Plugins\HydraPlugin\Source\HydraPlugin\Private\HydraPluginPrivatePCH.h">
+			<Filter>Plugins\HydraPlugin\Source\HydraPlugin\Private</Filter>
+		</ClInclude >
+		<Filter Include="Plugins\HydraPlugin\Source\HydraPlugin\Public">
+			<UniqueIdentifier>{8B126DE7-1197-4680-B614-0118C942F467}</UniqueIdentifier>
+		</Filter>
+		<ClInclude Include="..\..\Plugins\HydraPlugin\Source\HydraPlugin\Public\HydraDelegate.h">
+			<Filter>Plugins\HydraPlugin\Source\HydraPlugin\Public</Filter>
+		</ClInclude >
+		<ClInclude Include="..\..\Plugins\HydraPlugin\Source\HydraPlugin\Public\IHydraPlugin.h">
+			<Filter>Plugins\HydraPlugin\Source\HydraPlugin\Public</Filter>
+		</ClInclude >
+		<None Include="..\..\Plugins\HydraPlugin\HydraPlugin.uplugin">
+			<Filter>Plugins\HydraPlugin</Filter>
+		</None >
+		<Filter Include="Plugins\HydraPlugin\Resources">
+			<UniqueIdentifier>{28F0B5C6-1377-4C0A-A74E-B16723E894BF}</UniqueIdentifier>
+		</Filter>
+		<None Include="..\..\Plugins\HydraPlugin\Resources\Icon128.png">
+			<Filter>Plugins\HydraPlugin\Resources</Filter>
+		</None >
+		<Filter Include="Source\Cinemotus">
+			<UniqueIdentifier>{BC25F754-016C-46A9-942B-E38823B23680}</UniqueIdentifier>
+		</Filter>
+		<None Include="..\..\Source\Cinemotus\Cinemotus.Build.cs">
+			<Filter>Source\Cinemotus</Filter>
+		</None >
+		<Filter Include="Source\Cinemotus\Private">
+			<UniqueIdentifier>{06D653BA-3675-46F0-BA6F-8CF35D626E0A}</UniqueIdentifier>
+		</Filter>
+		<ClCompile Include="..\..\Source\Cinemotus\Private\Cinemotus.cpp">
+			<Filter>Source\Cinemotus\Private</Filter>
+		</ClCompile >
+		<ClCompile Include="..\..\Source\Cinemotus\Private\CinemotusCameraComponent.cpp">
+			<Filter>Source\Cinemotus\Private</Filter>
+		</ClCompile >
+		<ClCompile Include="..\..\Source\Cinemotus\Private\CinemotusCameraPawn.cpp">
+			<Filter>Source\Cinemotus\Private</Filter>
+		</ClCompile >
+		<ClCompile Include="..\..\Source\Cinemotus\Private\CinemotusCharacter.cpp">
+			<Filter>Source\Cinemotus\Private</Filter>
+		</ClCompile >
+		<ClCompile Include="..\..\Source\Cinemotus\Private\CinemotusDefaultPawn.cpp">
+			<Filter>Source\Cinemotus\Private</Filter>
+		</ClCompile >
+		<ClCompile Include="..\..\Source\Cinemotus\Private\CinemotusGameMode.cpp">
+			<Filter>Source\Cinemotus\Private</Filter>
+		</ClCompile >
+		<ClCompile Include="..\..\Source\Cinemotus\Private\CinemotusHUD.cpp">
+			<Filter>Source\Cinemotus\Private</Filter>
+		</ClCompile >
+		<ClCompile Include="..\..\Source\Cinemotus\Private\CinemotusPlayerController.cpp">
+			<Filter>Source\Cinemotus\Private</Filter>
+		</ClCompile >
+		<ClCompile Include="..\..\Source\Cinemotus\Private\HydraDelegate.cpp">
+			<Filter>Source\Cinemotus\Private</Filter>
+		</ClCompile >
+		<ClCompile Include="..\..\Source\Cinemotus\Private\HydraPawn.cpp">
+			<Filter>Source\Cinemotus\Private</Filter>
+		</ClCompile >
+		<ClCompile Include="..\..\Source\Cinemotus\Private\MySpectatorPawn.cpp">
+			<Filter>Source\Cinemotus\Private</Filter>
+		</ClCompile >
+		<ClCompile Include="..\..\Source\Cinemotus\Private\TestPlayerCameraManager.cpp">
+			<Filter>Source\Cinemotus\Private</Filter>
+		</ClCompile >
+		<Filter Include="Source\Cinemotus\Public">
+			<UniqueIdentifier>{0C9030D5-FC13-480F-8889-5CC63784AF67}</UniqueIdentifier>
+		</Filter>
+		<ClInclude Include="..\..\Source\Cinemotus\Public\Cinemotus.h">
+			<Filter>Source\Cinemotus\Public</Filter>
+		</ClInclude >
+		<ClInclude Include="..\..\Source\Cinemotus\Public\CinemotusCameraComponent.h">
+			<Filter>Source\Cinemotus\Public</Filter>
+		</ClInclude >
+		<ClInclude Include="..\..\Source\Cinemotus\Public\CinemotusCameraPawn.h">
+			<Filter>Source\Cinemotus\Public</Filter>
+		</ClInclude >
+		<ClInclude Include="..\..\Source\Cinemotus\Public\CinemotusCharacter.h">
+			<Filter>Source\Cinemotus\Public</Filter>
+		</ClInclude >
+		<ClInclude Include="..\..\Source\Cinemotus\Public\CinemotusDefaultPawn.h">
+			<Filter>Source\Cinemotus\Public</Filter>
+		</ClInclude >
+		<ClInclude Include="..\..\Source\Cinemotus\Public\CinemotusGameMode.h">
+			<Filter>Source\Cinemotus\Public</Filter>
+		</ClInclude >
+		<ClInclude Include="..\..\Source\Cinemotus\Public\CinemotusHUD.h">
+			<Filter>Source\Cinemotus\Public</Filter>
+		</ClInclude >
+		<ClInclude Include="..\..\Source\Cinemotus\Public\CinemotusPlayerController.h">
+			<Filter>Source\Cinemotus\Public</Filter>
+		</ClInclude >
+		<ClInclude Include="..\..\Source\Cinemotus\Public\HydraPawn.h">
+			<Filter>Source\Cinemotus\Public</Filter>
+		</ClInclude >
+		<ClInclude Include="..\..\Source\Cinemotus\Public\MySpectatorPawn.h">
+			<Filter>Source\Cinemotus\Public</Filter>
+		</ClInclude >
+		<ClInclude Include="..\..\Source\Cinemotus\Public\TestPlayerCameraManager.h">
+			<Filter>Source\Cinemotus\Public</Filter>
+		</ClInclude >
+		<Filter Include="Source\Cinemotus\Resources">
+			<UniqueIdentifier>{7BFB10B9-1D42-4736-AF1A-BBC08CA6FE60}</UniqueIdentifier>
+		</Filter>
+		<Filter Include="Source\Cinemotus\Resources\Windows">
+			<UniqueIdentifier>{60EF6552-FDCE-4592-A2D3-A354421F3C9E}</UniqueIdentifier>
+		</Filter>
+		<None Include="..\..\Source\Cinemotus\Resources\Windows\Cinemotus.ico">
+			<Filter>Source\Cinemotus\Resources\Windows</Filter>
+		</None >
+		<ResourceCompile Include="..\..\Source\Cinemotus\Resources\Windows\Cinemotus.rc">
+			<Filter>Source\Cinemotus\Resources\Windows</Filter>
+		</ResourceCompile >
+	</ItemGroup>
 </Project>
