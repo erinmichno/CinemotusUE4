@@ -4,6 +4,8 @@
 #include "CinemotusCharacter.h"
 #include "CinemotusGameMode.h"
 #include "Camera/CameraActor.h"
+#include "GameFramework/CharacterMovementComponent.h"
+#include "GameFramework/RotatingMovementComponent.h"
 #include "Engine.h"
 
 //////////////////////////////////////////////////////////////////////////
@@ -35,7 +37,8 @@ ACinemotusCharacter::ACinemotusCharacter(const class FPostConstructInitializePro
 	// Create a camera boom (pulls in towards the player if there is a collision)
 	CameraBoom = PCIP.CreateDefaultSubobject<USpringArmComponent>(this, TEXT("CameraBoom"));
 	CameraBoom->AttachTo(RootComponent);
-	CameraBoom->TargetArmLength = 300.0f; // The camera follows at this distance behind the character	
+	CameraZoom_v = 300.0f;
+	CameraBoom->TargetArmLength = CameraZoom_v; // The camera follows at this distance behind the character	
 	CameraBoom->bUseControllerViewRotation = true; // Rotate the arm based on the controller
 
 	// Create a follow camera
@@ -58,6 +61,43 @@ ACinemotusCharacter::ACinemotusCharacter(const class FPostConstructInitializePro
 
 	bFindCameraComponentWhenViewTarget = true;
 	Tags.Add(TEXT("CinemotusCharacter"));
+}
+
+/////
+void ACinemotusCharacter::CameraZoomIn()
+{
+	float a = 25.0;
+	CameraZoom_v = CameraZoom_v - 25.0;
+
+	if (CameraZoom_v <= 75.0)
+	{
+		CameraBoom->TargetArmLength = 75.0;
+		CameraZoom_v = 75.0;
+	}
+	else
+	{
+		CameraBoom->TargetArmLength = CameraZoom_v;
+	}
+}
+
+void ACinemotusCharacter::CameraZoomOut()
+{
+	float a = 25.0;
+	CameraZoom_v = CameraZoom_v + 25.0;
+
+	if (CameraZoom_v >= 300.0)
+	{
+		CameraBoom->TargetArmLength = 300.0;
+		CameraZoom_v = 300.0;
+	}
+	else
+	{
+		CameraBoom->TargetArmLength = CameraZoom_v;
+	}
+}
+
+void ACinemotusCharacter::HydraB1Pressed(int32 controllerNum)
+{
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -84,6 +124,8 @@ void ACinemotusCharacter::SetupPlayerInputComponent(class UInputComponent* Input
 
 	// handle touch devices
 	InputComponent->BindTouch(EInputEvent::IE_Pressed, this, &ACinemotusCharacter::TouchStarted);
+
+	
 }
 
 
@@ -136,6 +178,10 @@ void ACinemotusCharacter::MoveRight(float Value)
 		AddMovementInput(Direction, Value);
 	}
 }
+
+void ACinemotusCharacter::HydraControllerMoved(int32 controller,
+	FVector position, FVector velocity, FVector acceleration,
+	FRotator rotation, FRotator angularVelocity){};
 
 
 void ACinemotusCharacter::OnSetCameraPressed()

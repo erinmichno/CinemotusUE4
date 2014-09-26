@@ -16,5 +16,11 @@ class CINEMOTUS_API ACinemotusDefaultPawn : public ADefaultPawn
 	/** Follow camera */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera)
 	TSubobjectPtr<class UCameraComponent> camera0;
+protected:
+
+	virtual void SetupPlayerInputComponent(UInputComponent* InputComponent) override;
+	//void Initi
+
+	void UpdateRotationFromHydra();
 	
 };

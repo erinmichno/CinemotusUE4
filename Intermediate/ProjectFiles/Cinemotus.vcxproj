@@ -65,6 +65,7 @@
 		<None Include="..\..\Plugins\HydraPlugin\HydraPlugin.uplugin" />
 		<None Include="..\..\Plugins\HydraPlugin\Resources\Icon128.png" />
 		<None Include="..\..\Source\Cinemotus\Cinemotus.Build.cs" />
+		<ClCompile Include="..\..\Source\Cinemotus\Private\CineCharacterMovementComponent.cpp" />
 		<ClCompile Include="..\..\Source\Cinemotus\Private\Cinemotus.cpp" />
 		<ClCompile Include="..\..\Source\Cinemotus\Private\CinemotusCameraComponent.cpp" />
 		<ClCompile Include="..\..\Source\Cinemotus\Private\CinemotusCameraPawn.cpp" />
@@ -77,6 +78,7 @@
 		<ClCompile Include="..\..\Source\Cinemotus\Private\HydraPawn.cpp" />
 		<ClCompile Include="..\..\Source\Cinemotus\Private\MySpectatorPawn.cpp" />
 		<ClCompile Include="..\..\Source\Cinemotus\Private\TestPlayerCameraManager.cpp" />
+		<ClInclude Include="..\..\Source\Cinemotus\Public\CineCharacterMovementComponent.h" />
 		<ClInclude Include="..\..\Source\Cinemotus\Public\Cinemotus.h" />
 		<ClInclude Include="..\..\Source\Cinemotus\Public\CinemotusCameraComponent.h" />
 		<ClInclude Include="..\..\Source\Cinemotus\Public\CinemotusCameraPawn.h" />

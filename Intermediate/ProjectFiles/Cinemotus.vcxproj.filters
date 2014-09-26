@@ -4,7 +4,7 @@
 	<ItemGroup>
 		<None Include="..\..\Cinemotus.uproject" />
 		<Filter Include="Source">
-			<UniqueIdentifier>{D5B5C747-EB04-465B-ADD3-D82A2CA57434}</UniqueIdentifier>
+			<UniqueIdentifier>{29516BB7-EFB0-43C0-ACEF-0C3ADADABF32}</UniqueIdentifier>
 		</Filter>
 		<None Include="..\..\Source\Cinemotus.Target.cs">
 			<Filter>Source</Filter>
@@ -13,7 +13,7 @@
 			<Filter>Source</Filter>
 		</None >
 		<Filter Include="Config">
-			<UniqueIdentifier>{690EECCF-F63A-42D2-A8EC-351DB64C6BC2}</UniqueIdentifier>
+			<UniqueIdentifier>{AA9FFD27-F41B-475E-8BC5-3F0B1F3D2084}</UniqueIdentifier>
 		</Filter>
 		<None Include="..\..\Config\DefaultEditor.ini">
 			<Filter>Config</Filter>
@@ -28,22 +28,22 @@
 			<Filter>Config</Filter>
 		</None >
 		<Filter Include="Plugins">
-			<UniqueIdentifier>{364551F8-1616-4F06-98AA-F83BD5E5FEE0}</UniqueIdentifier>
+			<UniqueIdentifier>{AFEEC4DE-75B8-4FAA-A9DC-842DA1154ED0}</UniqueIdentifier>
 		</Filter>
 		<Filter Include="Plugins\HydraPlugin">
-			<UniqueIdentifier>{FD57D887-AC22-4CDA-8F04-44CAB8893857}</UniqueIdentifier>
+			<UniqueIdentifier>{24FC3E94-CF88-49C2-BD26-65EE00AA050F}</UniqueIdentifier>
 		</Filter>
 		<Filter Include="Plugins\HydraPlugin\Source">
-			<UniqueIdentifier>{1FF01C89-3633-41EE-A1CA-E1C146605AAD}</UniqueIdentifier>
+			<UniqueIdentifier>{19883ACC-D8F1-4F2B-BF86-0C97D3560B6A}</UniqueIdentifier>
 		</Filter>
 		<Filter Include="Plugins\HydraPlugin\Source\HydraPlugin">
-			<UniqueIdentifier>{69C2F9D5-EA6B-4B05-A384-76E4DC6A0616}</UniqueIdentifier>
+			<UniqueIdentifier>{E6F9D1D9-F2C6-45DB-A705-B96416107DB7}</UniqueIdentifier>
 		</Filter>
 		<None Include="..\..\Plugins\HydraPlugin\Source\HydraPlugin\HydraPlugin.Build.cs">
 			<Filter>Plugins\HydraPlugin\Source\HydraPlugin</Filter>
 		</None >
 		<Filter Include="Plugins\HydraPlugin\Source\HydraPlugin\Classes">
-			<UniqueIdentifier>{7BF20E8B-6D36-4DFA-A70F-7513DD8C27AC}</UniqueIdentifier>
+			<UniqueIdentifier>{9D0C0C18-77FD-4552-AC6D-37D33CB0EBEF}</UniqueIdentifier>
 		</Filter>
 		<ClInclude Include="..\..\Plugins\HydraPlugin\Source\HydraPlugin\Classes\HydraPlayerController.h">
 			<Filter>Plugins\HydraPlugin\Source\HydraPlugin\Classes</Filter>
@@ -52,7 +52,7 @@
 			<Filter>Plugins\HydraPlugin\Source\HydraPlugin\Classes</Filter>
 		</ClInclude >
 		<Filter Include="Plugins\HydraPlugin\Source\HydraPlugin\Private">
-			<UniqueIdentifier>{5FA4F01D-E736-4290-806C-3BDFBAB0487C}</UniqueIdentifier>
+			<UniqueIdentifier>{0C8964B9-2D08-4302-8085-11CB76623A56}</UniqueIdentifier>
 		</Filter>
 		<ClCompile Include="..\..\Plugins\HydraPlugin\Source\HydraPlugin\Private\FHydraPlugin.cpp">
 			<Filter>Plugins\HydraPlugin\Source\HydraPlugin\Private</Filter>
@@ -73,7 +73,7 @@
 			<Filter>Plugins\HydraPlugin\Source\HydraPlugin\Private</Filter>
 		</ClInclude >
 		<Filter Include="Plugins\HydraPlugin\Source\HydraPlugin\Public">
-			<UniqueIdentifier>{8B126DE7-1197-4680-B614-0118C942F467}</UniqueIdentifier>
+			<UniqueIdentifier>{72C75BDC-EB39-4459-8020-11EB6C8C6EDE}</UniqueIdentifier>
 		</Filter>
 		<ClInclude Include="..\..\Plugins\HydraPlugin\Source\HydraPlugin\Public\HydraDelegate.h">
 			<Filter>Plugins\HydraPlugin\Source\HydraPlugin\Public</Filter>
@@ -85,20 +85,23 @@
 			<Filter>Plugins\HydraPlugin</Filter>
 		</None >
 		<Filter Include="Plugins\HydraPlugin\Resources">
-			<UniqueIdentifier>{28F0B5C6-1377-4C0A-A74E-B16723E894BF}</UniqueIdentifier>
+			<UniqueIdentifier>{01203E9C-013B-4A5F-A1E1-9E81104A2C7F}</UniqueIdentifier>
 		</Filter>
 		<None Include="..\..\Plugins\HydraPlugin\Resources\Icon128.png">
 			<Filter>Plugins\HydraPlugin\Resources</Filter>
 		</None >
 		<Filter Include="Source\Cinemotus">
-			<UniqueIdentifier>{BC25F754-016C-46A9-942B-E38823B23680}</UniqueIdentifier>
+			<UniqueIdentifier>{08FDD17A-5910-43E6-BCF7-309D8C4A9260}</UniqueIdentifier>
 		</Filter>
 		<None Include="..\..\Source\Cinemotus\Cinemotus.Build.cs">
 			<Filter>Source\Cinemotus</Filter>
 		</None >
 		<Filter Include="Source\Cinemotus\Private">
-			<UniqueIdentifier>{06D653BA-3675-46F0-BA6F-8CF35D626E0A}</UniqueIdentifier>
+			<UniqueIdentifier>{5D23E3AB-8A7C-492D-A883-AD95C3A7858D}</UniqueIdentifier>
 		</Filter>
+		<ClCompile Include="..\..\Source\Cinemotus\Private\CineCharacterMovementComponent.cpp">
+			<Filter>Source\Cinemotus\Private</Filter>
+		</ClCompile >
 		<ClCompile Include="..\..\Source\Cinemotus\Private\Cinemotus.cpp">
 			<Filter>Source\Cinemotus\Private</Filter>
 		</ClCompile >
@@ -136,8 +139,11 @@
 			<Filter>Source\Cinemotus\Private</Filter>
 		</ClCompile >
 		<Filter Include="Source\Cinemotus\Public">
-			<UniqueIdentifier>{0C9030D5-FC13-480F-8889-5CC63784AF67}</UniqueIdentifier>
+			<UniqueIdentifier>{A66BB5F1-8C6C-43F3-AAE0-1EF01F6ACC41}</UniqueIdentifier>
 		</Filter>
+		<ClInclude Include="..\..\Source\Cinemotus\Public\CineCharacterMovementComponent.h">
+			<Filter>Source\Cinemotus\Public</Filter>
+		</ClInclude >
 		<ClInclude Include="..\..\Source\Cinemotus\Public\Cinemotus.h">
 			<Filter>Source\Cinemotus\Public</Filter>
 		</ClInclude >
@@ -172,10 +178,10 @@
 			<Filter>Source\Cinemotus\Public</Filter>
 		</ClInclude >
 		<Filter Include="Source\Cinemotus\Resources">
-			<UniqueIdentifier>{7BFB10B9-1D42-4736-AF1A-BBC08CA6FE60}</UniqueIdentifier>
+			<UniqueIdentifier>{3E92CE84-3741-48C0-B822-2D429517673E}</UniqueIdentifier>
 		</Filter>
 		<Filter Include="Source\Cinemotus\Resources\Windows">
-			<UniqueIdentifier>{60EF6552-FDCE-4592-A2D3-A354421F3C9E}</UniqueIdentifier>
+			<UniqueIdentifier>{11CA0FB0-97FC-466D-8344-2A4265BBAD9F}</UniqueIdentifier>
 		</Filter>
 		<None Include="..\..\Source\Cinemotus\Resources\Windows\Cinemotus.ico">
 			<Filter>Source\Cinemotus\Resources\Windows</Filter>

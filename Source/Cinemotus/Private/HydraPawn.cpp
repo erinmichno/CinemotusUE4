@@ -30,7 +30,7 @@ void AHydraPawn::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 	//"Blueprint'/Game/Blueprints/MyCharacter.MyCharacter'"
-	//Required Hydra Tick
+	//Required Hydra Tick just needs to be done once in the scene
 	HydraTick(DeltaTime);
 }
 

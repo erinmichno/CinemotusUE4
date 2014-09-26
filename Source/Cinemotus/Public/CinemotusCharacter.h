@@ -1,11 +1,13 @@
 // Copyright 1998-2014 Epic Games, Inc. All Rights Reserved.
 #pragma once
 #include "GameFramework/Character.h"
+#include "HydraDelegate.h"
+#include "GameFramework/PawnMovementComponent.h"
 #include "CinemotusCharacter.generated.h"
 
 
 UCLASS(config=Game)
-class ACinemotusCharacter : public ACharacter
+class ACinemotusCharacter : public ACharacter , public HydraDelegate
 {
 	GENERATED_UCLASS_BODY()
 
@@ -33,6 +35,15 @@ class ACinemotusCharacter : public ACharacter
 	float BaseLookUpRate;
 
 	float PowerLevel;
+
+
+	virtual	void HydraB1Pressed(int32 controllerNum) override;
+
+
+	//To be used as part of the basic delegate system rather than relying on the input ini
+	virtual void HydraControllerMoved(int32 controller,
+		FVector position, FVector velocity, FVector acceleration,
+		FRotator rotation, FRotator angularVelocity) override;
 
 protected:
 
@@ -63,6 +74,11 @@ protected:
 	// End of APawn interface
 
 	void OnSetCameraPressed();
+
+
+	void CameraZoomIn();
+	void CameraZoomOut();
+	float CameraZoom_v;
 	
 };
 
