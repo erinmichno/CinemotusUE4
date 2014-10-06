@@ -46,7 +46,7 @@ void UCineCharacterMovementComponent::TickComponent(float DeltaTime, enum ELevel
 		APlayerController* PC = Cast<APlayerController>(PawnOwner->GetController());
 		if (PC)
 		{
-			//PC->SetControlRotation(NewRotation.Rotator());
+			//PC->SetControlRotation(NewRotation.Rotator()); //if you set this then it may override the set in the controller
 		}
 	}
 }
