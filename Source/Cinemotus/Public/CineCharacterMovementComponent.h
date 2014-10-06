@@ -2,14 +2,14 @@
 
 #pragma once
 
-#include "GameFramework/MovementComponent.h"
+#include "GameFramework/FloatingPawnMovement.h"
 #include "CineCharacterMovementComponent.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class CINEMOTUS_API UCineCharacterMovementComponent : public UMovementComponent
+class CINEMOTUS_API UCineCharacterMovementComponent : public UFloatingPawnMovement
 {
 	GENERATED_UCLASS_BODY()
 
@@ -28,6 +28,13 @@ class CINEMOTUS_API UCineCharacterMovementComponent : public UMovementComponent
 	//Begin UActorComponent Interface
 	virtual void TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction *ThisTickFunction) override;
 	//End UActorComponent Interface
+
+	
+
+protected:
+
+
+
 
 	
 	

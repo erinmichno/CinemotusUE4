@@ -2,27 +2,28 @@
 
 #include "Cinemotus.h"
 #include "CineCharacterMovementComponent.h"
+#include "Engine.h"
 
 
 UCineCharacterMovementComponent::UCineCharacterMovementComponent(const class FPostConstructInitializeProperties& PCIP)
 	: Super(PCIP)
 {
-	RotationRate.Yaw = 180.0f;
-	bRotationInLocalSpace = true;
+	RotationRate.Yaw = 30.0f;
+	bRotationInLocalSpace = false;
+	MaxSpeed = 1200.0f;
+
+	
 }
+
 
 
 void UCineCharacterMovementComponent::TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction *ThisTickFunction)
 {
-	// skip if don't want component updated when not rendered
-	if (SkipUpdate(DeltaTime))
-	{
-		return;
-	}
 
 	// Compute new rotation
-	const FQuat OldRotation = UpdatedComponent->GetComponentQuat();
-	const FQuat DeltaRotation = (RotationRate * DeltaTime).Quaternion();
+	const FQuat OldRotation = UpdatedComponent->GetComponentQuat(); //the collider
+	const FQuat DeltaRotation = (RotationRate * DeltaTime).Quaternion(); //Where we can put in rotation of 
+	//IF THE CHANGE IS WORLD then World*CurrentRotation*Local
 	const FQuat NewRotation = bRotationInLocalSpace ? (OldRotation * DeltaRotation) : (DeltaRotation * OldRotation);
 
 	// Compute new location
@@ -35,6 +36,20 @@ void UCineCharacterMovementComponent::TickComponent(float DeltaTime, enum ELevel
 	}
 
 	UpdatedComponent->SetWorldLocationAndRotation(NewLocation, NewRotation);
+
+	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+
+	//IF PC then PC->SetControlRotation(ViewRot)
+
+	if (PawnOwner)
+	{
+		APlayerController* PC = Cast<APlayerController>(PawnOwner->GetController());
+		if (PC)
+		{
+			//PC->SetControlRotation(NewRotation.Rotator());
+		}
+	}
 }
+
 
 

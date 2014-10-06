@@ -4,11 +4,18 @@
 #include "CinemotusPlayerController.h"
 #include "IHydraPlugin.h"
 #include "Engine.h"
+#include "CinemotusDefaultPawn.h"
 
 ACinemotusPlayerController::ACinemotusPlayerController(const class FPostConstructInitializeProperties& PCIP)
 	: Super(PCIP)
 {
 	PrimaryActorTick.bCanEverTick = true;
+	possessedCinePawn = NULL;
+
+
+	pawnStartingRotator = FRotator::ZeroRotator;
+	 controllerStartingRotator = FRotator::ZeroRotator;
+	 capture = false;
 }
 
 
@@ -41,17 +48,53 @@ void ACinemotusPlayerController::Tick(float DeltaTime)
 }
 
 
+//dead zone and smoothing
+float DeadZone(float val, float tolerance)
+{
+	if (FMath::Abs(val) < tolerance)
+	{
+		return 0;
+	}
+	
+	return val - tolerance;
+
+	
+}
+
 void ACinemotusPlayerController::PlayerTick(float DeltaTime)
 {
+	FRotator test = FRotator::ZeroRotator;
+	if (capture)
+	{
+		FRotator rot = HydraLatestData->controllers[0].angular_velocity;
+		FRotator res = FRotator(DeadZone(rot.Pitch*DeltaTime, 0.3), DeadZone(rot.Yaw*DeltaTime, 0.3), DeadZone(rot.Roll*DeltaTime, 0.3));
+		//SetControlRotation(GetPawn()->GetActorRotation());
+		//GetPawn()->AddActorLocalRotation(res);
+		//
+		//GetPawn()->SetActorRelativeRotation(rot - controllerStartingRotator);
+		//SetControlRotation(   rot );//RotationInput
+		//RotationInput.Roll += (rot.Roll - controllerStartingRotator.Roll);
+		//RotationInput.Yaw += (rot.Yaw - controllerStartingRotator.Yaw);
+		//float yaw  = rot.Y
+		RotationInput.Roll += DeadZone(rot.Roll*DeltaTime,0.3);
+		RotationInput.Yaw += DeadZone(rot.Yaw*DeltaTime, 0.3);
+		RotationInput.Pitch += DeadZone(rot.Pitch*DeltaTime, 0.3);
+
+
+		
+	}
+
 	Super::PlayerTick(DeltaTime);
 }
 void ACinemotusPlayerController::SetupInputComponent()
 {
 	Super::SetupInputComponent();
 
-	InputComponent->BindAction("NextPawn", IE_Pressed, this, &ACinemotusPlayerController::OnSwichPawn);
+	//InputComponent->BindAction("NextPawn", IE_Pressed, this, &ACinemotusPlayerController::OnSwichPawn);
 	//InputComponent->BindAction("SetDestination", IE_Released, this, &AMyProject2PlayerController::OnSetDestinationReleased);
 }
+
+
 
 void ACinemotusPlayerController::BeginPlay()
 {
@@ -88,11 +131,65 @@ void ACinemotusPlayerController::BeginPlay()
 			break;
 		}
 	}
+
+	possessedCinePawn = Cast<ACinemotusDefaultPawn>(GetPawn());
+}
+
+ void ACinemotusPlayerController::HydraTriggerPressed(int32 controllerNum) 
+{
+	 if (controllerNum == 0)//todo which hands etc etc
+	 {
+		 capture = true;
+		 pawnStartingRotator = GetControlRotation();//GetPawn()->GetActorRotation(); //need to get relative Rotation etc from components later
+		 controllerStartingRotator = HydraLatestData->controllers[0].rotation;
+		 
+		 GEngine->AddOnScreenDebugMessage(-1, .5f, FColor::Yellow, TEXT("SSSS"));
+	 }
 }
 
 
+ void ACinemotusPlayerController::HydraTriggerReleased(int32 controllerNum)
+ {
+	 if (controllerNum == 0)//todo which hands etc etc
+	 {
+		 capture = false;
+	 }
+ }
+
+
+//called every frame controller undocked  
+void ACinemotusPlayerController::HydraControllerMoved(int32 controller,
+	FVector position, FVector velocity, FVector acceleration,
+	FRotator rotation, FRotator angularVelocity)
+{
+
+//AddActorLocalRotation deltaRotation(rotation for this frame!)
+	//rotation.ToString();
+	static FRotator lastFrameRotator = FRotator::ZeroRotator;
+
+	FRotator rot = HydraLatestData->controllers[0].rotation;
+	if (capture)
+	{
+		//GetPaw\\\\\n()->AddActorLocalRotation(rotation);
+		//GetPawn()->SetActorRelativeRotation(rot - controllerStartingRotator);
+		//SetControlRotation(   rot );//RotationInput
+		
+		controllerStartingRotator = rot;
+	}
+
+
+	
+
+//	FString output = FString::Printf(TEXT("in thing: "));
+//	output +=  rotation.ToString();
+	//GEngine->AddOnScreenDebugMessage(-1, .5f, FColor::Yellow, output);
+
+}
+
 void ACinemotusPlayerController::OnSwichPawn()
 {
+	//Get Current Pawn's rotation?
+
 	if (PawnsInScene.Num() < 2)
 	{
 		return;
@@ -104,16 +201,52 @@ void ACinemotusPlayerController::OnSwichPawn()
 	
 	Possess(nextPawn);
 	SetViewTargetWithBlend(nextPawn, 0.0f);
+	possessedCinePawn = Cast<ACinemotusDefaultPawn>(nextPawn);
 	
 
 
 }
 
+void ACinemotusPlayerController::HydraStartReleased(int32 controllerNum)
+{
+	//Go to next pawn stuff
+	OnSwichPawn();
+
+}
+
 void ACinemotusPlayerController::HydraB1Pressed(int32 controllerNum)
 {
+
+
+	FRotator rotation = HydraLatestData->controllers[controllerNum].rotation;
+
+	FRotator initialRotation = FRotator(10, 20, 30);
+
+	FRotator currentRotOFController = FRotator(355, 15, 10);
+
+	FRotator whatShouldBe = FRotator(345, -5, -20);
+
+	FQuat initQuat = initialRotation.Quaternion();
+	FQuat currentQuatController = currentRotOFController.Quaternion();
+	FQuat difference = currentQuatController*initQuat.Inverse();
+	FQuat diff2 = initQuat.Inverse() * currentQuatController;//closest to 345, -5, -20
+	FQuat diff3 = initQuat * currentQuatController.Inverse();
+	FRotator two = diff2.Rotator();
+	FRotator three = diff3.Rotator();
+
+	FRotator rest = difference.Rotator();
+	FString testString = rest.ToString();
+
+
+
+	//FRotator deltaROtation 
+
+
+	FString output = FString::Printf(TEXT("in thing: "));
+	output += rotation.ToString();
 	if (GEngine)
 	{
-		GEngine->AddOnScreenDebugMessage(-1, .5f, FColor::Yellow, TEXT("B1 PRESSED"));
+		GEngine->AddOnScreenDebugMessage(-1, .5f, FColor::Green,testString );
 	}
 }
 

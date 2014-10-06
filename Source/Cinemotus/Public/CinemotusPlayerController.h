@@ -6,6 +6,8 @@
 #include "HydraDelegate.h"
 #include "CinemotusPlayerController.generated.h"
 
+
+class ACinemotusDefaultPawn;
 /**
  * 
  */
@@ -44,10 +46,27 @@ class CINEMOTUS_API ACinemotusPlayerController : public APlayerController, publi
 
 	virtual void Tick(float DeltaTime) override;
 
+
+	virtual void HydraStartReleased(int32 controllerNum)override;
 	virtual void HydraB1Pressed(int32 controllerNum) override;
+
+	virtual void HydraTriggerPressed(int32 controllerNum) override;
+
+	virtual void HydraTriggerReleased(int32 controllerNum) override;
+
+	//UFUNCTION(BlueprintImplementableEvent, Category = HydraEvents)
+		virtual void HydraControllerMoved(int32 controller,
+		FVector position, FVector velocity, FVector acceleration,
+		FRotator rotation, FRotator angularVelocity) override;
 private:
 	TArray<APawn*> PawnsInScene;
 	int32 currentPawnIndex;
+
+	ACinemotusDefaultPawn* possessedCinePawn;
+
+	FRotator pawnStartingRotator;
+	FRotator controllerStartingRotator;
+	bool capture;
 	
 
 	

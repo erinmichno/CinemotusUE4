@@ -583,8 +583,8 @@ void FHydraPlugin::DelegateTick(float DeltaTime)
 			//Calculate Velocity, Acceleration, and angular velocity
 			controller->velocity = (controller->position - previous->position) / DeltaTime;
 			controller->acceleration = (controller->velocity - previous->velocity) / DeltaTime;
-			controller->angular_velocity = FRotator(controller->quat - previous->quat);	//unscaled by deltatime
-			float DeltaSquared = (DeltaTime*DeltaTime);
+			controller->angular_velocity = FRotator(controller->rotation - previous->rotation);	//unscaled by deltatime
+			float DeltaSquared = DeltaTime;// (DeltaTime*DeltaTime);
 			controller->angular_velocity = FRotator(controller->angular_velocity.Pitch / DeltaSquared,
 				controller->angular_velocity.Yaw / DeltaSquared,
 				controller->angular_velocity.Roll / DeltaSquared);	//has to be scaled here to avoid clamping in the quaternion initialization

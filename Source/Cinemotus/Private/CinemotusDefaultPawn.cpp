@@ -2,15 +2,23 @@
 
 #include "Cinemotus.h"
 #include "CinemotusDefaultPawn.h"
+#include "CineCharacterMovementComponent.h"
 #include "GameFramework/FloatingPawnMovement.h"
 #include "GameFramework/PlayerInput.h"
+
 //#include "HydraPlugin.h"
 
 
 ACinemotusDefaultPawn::ACinemotusDefaultPawn(const class FPostConstructInitializeProperties& PCIP)
 //  : Super(PCIP)
-	: Super(PCIP.DoNotCreateDefaultSubobject(ADefaultPawn::MeshComponentName))
+: Super((PCIP.SetDefaultSubobjectClass<UCineCharacterMovementComponent>(ADefaultPawn::MovementComponentName)).DoNotCreateDefaultSubobject(ADefaultPawn::MeshComponentName))
+//: Super(PCIP.DoNotCreateDefaultSubobject(ADefaultPawn::MeshComponentName))
 {
+	//.DoNotCreateDefaultSubobject(ADefaultPawn::MeshComponentName)
+	//Create a movement component with our movement component type
+	//MovementComponent = PCIP.CreateDefaultSubobject<UCineCharacterMovementComponent>(this, ADefaultPawn::MovementComponentName);
+//	MovementComponent->UpdatedComponent = CollisionComponent;
+
 	// Create a follow camera
 	camera0 = PCIP.CreateDefaultSubobject<UCameraComponent>(this, TEXT("camera0"));
 	camera0->AttachTo(RootComponent); // Attach the camera to the end of the boom and let the boom adjust to match the controller orientation
@@ -21,9 +29,15 @@ ACinemotusDefaultPawn::ACinemotusDefaultPawn(const class FPostConstructInitializ
 	bAddDefaultMovementBindings = true;
 
 	// Don't rotate when the controller rotates. Let that just affect the camera.
-	bUseControllerRotationPitch = false;
+	/*bUseControllerRotationPitch = false;
 	bUseControllerRotationYaw = false;
-	bUseControllerRotationRoll = false;
+	bUseControllerRotationRoll = false;*/
+
+	camera0->bUseControllerViewRotation = true;
+
+	//camera0->RelativeRotation;
+
+	//RelativeRotation = (FRotationMatrix(CharacterOwner->GetActorRotation()) * FQuatRotationTranslationMatrix(OldBaseQuat, FVector::ZeroVector).GetTransposed()).Rotator();
 }
 
 
@@ -79,6 +93,8 @@ void ACinemotusDefaultPawn::SetupPlayerInputComponent(UInputComponent* InputComp
 	}
 
 }
+
+
 
 void ACinemotusDefaultPawn::UpdateRotationFromHydra()
 {
