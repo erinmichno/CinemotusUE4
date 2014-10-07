@@ -35,7 +35,7 @@ void UCineCharacterMovementComponent::TickComponent(float DeltaTime, enum ELevel
 		NewLocation = (NewLocation + OldPivot - NewPivot);
 	}
 
-	UpdatedComponent->SetWorldLocationAndRotation(NewLocation, NewRotation);
+//	UpdatedComponent->SetWorldLocationAndRotation(NewLocation, NewRotation);
 
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 

@@ -30,6 +30,9 @@ class CINEMOTUS_API UCineCharacterMovementComponent : public UFloatingPawnMoveme
 	//End UActorComponent Interface
 
 	
+	
+
+	
 
 protected:
 

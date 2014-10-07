@@ -54,10 +54,22 @@ class CINEMOTUS_API ACinemotusPlayerController : public APlayerController, publi
 
 	virtual void HydraTriggerReleased(int32 controllerNum) override;
 
+
+	virtual void HydraBumperPressed(int32 controllerNum) override;
+
+	virtual void HydraBumperReleased(int32 controllerNum) override;
+
+	
+
 	//UFUNCTION(BlueprintImplementableEvent, Category = HydraEvents)
 		virtual void HydraControllerMoved(int32 controller,
 		FVector position, FVector velocity, FVector acceleration,
 		FRotator rotation, FRotator angularVelocity) override;
+
+protected:
+	//FQuat YawWorld, PitchWorld, RollLocal;
+	//FRotator RollPitchYawRotator;
+	void HandleMovement(float DeltaTime);
 private:
 	TArray<APawn*> PawnsInScene;
 	int32 currentPawnIndex;
@@ -66,7 +78,7 @@ private:
 
 	FRotator pawnStartingRotator;
 	FRotator controllerStartingRotator;
-	bool capture;
+	bool capture, TransCapture;
 	
 
 	
