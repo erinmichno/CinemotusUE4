@@ -59,7 +59,7 @@ class CINEMOTUS_API ACinemotusPlayerController : public APlayerController, publi
 
 	virtual void HydraBumperReleased(int32 controllerNum) override;
 
-	
+	virtual void PostInitializeComponents()override;
 
 	//UFUNCTION(BlueprintImplementableEvent, Category = HydraEvents)
 		virtual void HydraControllerMoved(int32 controller,

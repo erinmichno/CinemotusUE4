@@ -18,7 +18,7 @@ ACinemotusDefaultPawn::ACinemotusDefaultPawn(const class FPostConstructInitializ
 	//Create a movement component with our movement component type
 	//MovementComponent = PCIP.CreateDefaultSubobject<UCineCharacterMovementComponent>(this, ADefaultPawn::MovementComponentName);
 //	MovementComponent->UpdatedComponent = CollisionComponent;
-
+	
 	// Create a follow camera
 	camera0 = PCIP.CreateDefaultSubobject<UCameraComponent>(this, TEXT("camera0"));
 	camera0->AttachTo(RootComponent); // Attach the camera to the end of the boom and let the boom adjust to match the controller orientation
