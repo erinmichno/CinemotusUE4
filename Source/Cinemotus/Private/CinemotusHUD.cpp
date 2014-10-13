@@ -5,6 +5,7 @@
 #include "CinemotusCharacter.h"
 #include "CinemotusGameMode.h"
 #include "Kismet/GameplayStatics.h"
+#include "CinemotusPlayerController.h"
 #include "Engine/Canvas.h"
 #include "Engine/Font.h"
 
@@ -24,7 +25,16 @@ void ACinemotusHUD::DrawHUD()
 	//Call to the parent versions of DrawHUD
 	Super::DrawHUD();
 
-//	ACinemotusCharacter* MyCharacter = Cast<ACinemotusCharacter>(UGameplayStatics::GetPlayerPawn(this, 0));
+	ACinemotusPlayerController* controller = Cast<ACinemotusPlayerController>(UGameplayStatics::GetPlayerController(this, 0));
+	if (controller)
+	{
+		FVector2D TextSize;
+		const FString output = ECinemotusCaptureState::ToString(controller->GetCurrentCaptureState());
+		GetTextSize(output, TextSize.X, TextSize.Y, HUDFont);
+		
+		DrawText(output, FColor::Green, (ScreenDimensions.X - TextSize.X)*0.5f, 50, HUDFont);
+	}
+
 //	FString PowerLevelString = FString::Printf(TEXT("%10.1f"), FMath::Abs(MyCharacter->PowerLevel));
 //	DrawText(PowerLevelString, FColor::White, 50, 50, HUDFont);
 

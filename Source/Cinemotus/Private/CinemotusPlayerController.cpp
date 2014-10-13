@@ -5,18 +5,19 @@
 #include "IHydraPlugin.h"
 #include "Engine.h"
 #include "CinemotusDefaultPawn.h"
+#include "CinemotusGameMode.h"
+#include "Kismet/GameplayStatics.h"
 
 ACinemotusPlayerController::ACinemotusPlayerController(const class FPostConstructInitializeProperties& PCIP)
 	: Super(PCIP)
 {
 	PrimaryActorTick.bCanEverTick = true;
 	possessedCinePawn = NULL;
-
+	bumperTapTimer = 0;
 
 	pawnStartingRotator = FRotator::ZeroRotator;
-	 controllerStartingRotator = FRotator::ZeroRotator;
-	 capture = false;
-	 TransCapture = false;
+	 
+	 currentCaptureState = ECinemotusCaptureState::ERelativeOff;
 	 /*ViewPitchMin = -89.9f;
 	ViewPitchMax = 89.9f;
 	ViewYawMin = 0.f;
@@ -24,9 +25,12 @@ ACinemotusPlayerController::ACinemotusPlayerController(const class FPostConstruc
 	ViewRollMin = -89.9f;
 	ViewRollMax = 89.9f;
 	 */
-	 
-
 }
+
+//
+
+
+
 
 void ACinemotusPlayerController::PostInitializeComponents()
 {
@@ -79,10 +83,10 @@ float DeadZone(float val, float tolerance)
 	{
 		return 0;
 	}
-	
+
 	return val - tolerance;
 
-	
+
 }
 
 //
@@ -102,10 +106,7 @@ float DeadZone(float val, float tolerance)
 
 void ACinemotusPlayerController::HandleMovement(float DeltaTime)
 {
-	if (!TransCapture)
-	{
-		return;
-	}
+
 	APawn* pawn = GetPawn();
 	if (!pawn)
 	{
@@ -122,101 +123,98 @@ void ACinemotusPlayerController::HandleMovement(float DeltaTime)
 	//pawn->AddMovementInput(velocity, DeltaTime*10);
 
 }
-void ACinemotusPlayerController::PlayerTick(float DeltaTime)
+
+void ACinemotusPlayerController::AbsoluteTick(float DeltaTime)
 {
-	FRotator test = FRotator::ZeroRotator;
-	if (capture)
+	if (((currentCaptureState&ECinemotusCaptureState::EAbsolute) == ECinemotusCaptureState::EAbsolute) && 
+		((currentCaptureState&ECinemotusCaptureState::EAbsoluteOff) == 0))
 	{
-		FRotator rot = HydraLatestData->controllers[0].angular_velocity;
-		FRotator res = FRotator(DeadZone(rot.Pitch*DeltaTime, 0.3), DeadZone(rot.Yaw*DeltaTime, 0.3), DeadZone(rot.Roll*DeltaTime, 0.3));
-		//SetControlRotation(GetPawn()->GetActorRotation());
-		//GetPawn()->AddActorLocalRotation(res);
-		//
-		//GetPawn()->SetActorRelativeRotation(rot - controllerStartingRotator);
-		//SetControlRotation(   rot );//RotationInput
-		//RotationInput.Roll += (rot.Roll - controllerStartingRotator.Roll);
-		//RotationInput.Yaw += (rot.Yaw - controllerStartingRotator.Yaw);
-		//float yaw  = rot.Y
-		//TODO: test better!
-
+		SetControlRotation(HydraLatestData->controllers[0].rotation);
+		HandleMovement(DeltaTime);
+	}
+}
+void ACinemotusPlayerController::RelativeTick(float DeltaTime)
+{
+	if ((currentCaptureState & ECinemotusCaptureState::ERelativeRotation) == ECinemotusCaptureState::ERelativeRotation)
+	{
 		UPrimitiveComponent* prim = GetPawn()->GetMovementComponent()->UpdatedComponent;
-		const FQuat OldRotation = GetControlRotation().Quaternion();//prim->GetComponentQuat(); //the collider
+		FRotator rot = HydraLatestData->controllers[0].angular_velocity;
+		const FQuat OldRotation = prim->GetComponentQuat();//GetControlRotation().Quaternion();
 		const FRotator OldRotationRotator = OldRotation.Rotator();
+		FRotator worldRotator = FRotator(0, DeadZone(rot.Yaw*DeltaTime, 0.0), 0);
+		FRotator worldRotator1 = FRotator(DeadZone(rot.Pitch*DeltaTime, 0.0), 0, 0);
+		FRotator localRotator = FRotator(0, 0, DeadZone(rot.Roll*DeltaTime, 0.0));
+		const FQuat WorldRot = worldRotator.Quaternion();
+		const FQuat pitchRot = worldRotator1.Quaternion();
+		const FQuat LocalRot = localRotator.Quaternion();
 
+		////This one does roll around local forward, pitch around world right flattened and yaw around world up
+		////			FQuat finalQuat = pitchRot*WorldRot*((OldRotation*LocalRot));
 
-		if (true)
-		{
-			FRotator worldRotator = FRotator(0, DeadZone(rot.Yaw*DeltaTime, 0.0), 0);
-			FRotator worldRotator1 = FRotator(DeadZone(rot.Pitch*DeltaTime, 0.0), 0, 0);
-			FRotator localRotator = FRotator(0, 0, DeadZone(rot.Roll*DeltaTime, 0.0));
-			const FQuat WorldRot = worldRotator.Quaternion();
-			const FQuat pitchRot = worldRotator1.Quaternion();
-			const FQuat LocalRot = localRotator.Quaternion();
+		FQuat finalQuat = WorldRot*((OldRotation*LocalRot)*pitchRot);
 
-			//This one does roll around local forward, pitch around local right and yaw around world up
-				FQuat finalQuat = WorldRot*((OldRotation*LocalRot)*pitchRot);
-
-			//FQuat finalQuat = (WorldRot*OldRotation);
-		//	FQuat finalQuat = (WorldRot*((OldRotation*pitchRot)*LocalRot));
-		//	prim->SetRelativeRotation(finalQuat.Rotator());
-			//prim->SetWorldRotation();
-			prim->SetWorldLocationAndRotation(prim->GetComponentLocation(), finalQuat);
-			SetControlRotation(finalQuat.Rotator());
-		}
-		else //use
-		{
-
-			FRotator worldRotator = FRotator(0, DeadZone(rot.Yaw*DeltaTime, 0.0) + OldRotationRotator.Yaw, 0);
-			FRotator worldRotator1 = FRotator(DeadZone(rot.Pitch*DeltaTime, 0.0) + OldRotationRotator.Pitch, 0, 0);
-			FRotator localRotator = FRotator(0, 0, DeadZone(rot.Roll*DeltaTime, 0.0) + OldRotationRotator.Roll);
-			const FQuat WorldRot = worldRotator.Quaternion();
-			const FQuat pitchRot = worldRotator1.Quaternion();
-			const FQuat LocalRot = localRotator.Quaternion();
-			FQuat finalQuat = WorldRot*pitchRot*LocalRot;
-
-			//prim->SetWorldLocationAndRotation(prim->GetComponentLocation(), finalQuat);
-
-
-			static float currentPitch = 0.0;
-
-
-			currentPitch += 30 * DeltaTime;
 		
-			//SetControlRotation(prim->GetComponentRotation());
-			FRotator aRotator = FRotator(currentPitch, 0, 0);
 
-			//Absolute things
-			FQuat rot = HydraLatestData->controllers[0].quat;
-
-			
-			//prim->SetWorldLocationAndRotation(prim->GetComponentLocation(), aRotator);
-			FString output = FString::Printf(TEXT("in thing: "));
-			output += aRotator.ToString();
-			if (GEngine)
-			{
-				GEngine->AddOnScreenDebugMessage(-1, .5f, FColor::Red, output);
-			}
-
-			SetControlRotation(finalQuat.Rotator());
-			
-		}
-
-
+		/*FRotator worldRotator = FRotator(0, DeadZone(rot.Yaw*DeltaTime, 0.0) + OldRotationRotator.Yaw, 0);
+		FRotator worldRotator1 = FRotator(DeadZone(rot.Pitch*DeltaTime, 0.0) + OldRotationRotator.Pitch, 0, 0);
+		FRotator localRotator = FRotator(0, 0, DeadZone(rot.Roll*DeltaTime, 0.0) + OldRotationRotator.Roll);
+		const FQuat WorldRot = worldRotator.Quaternion();
+		const FQuat pitchRot = worldRotator1.Quaternion();
+		const FQuat LocalRot = localRotator.Quaternion();
+		FQuat finalQuat = WorldRot*pitchRot*LocalRot;*/
 	
 
 
+		bool SetPrimDirectly = true;
+		if (SetPrimDirectly)
+		{
+			
+			if (prim)
+			{
+				prim->SetWorldLocationAndRotation(prim->GetComponentLocation(), finalQuat);// not sure need
+			}
+		}
 
-		
-		//RotationInput.Roll += DeadZone(rot.Roll*DeltaTime,0.3);
-		//RotationInput.Yaw += DeadZone(rot.Yaw*DeltaTime, 0.3);
-		//RotationInput.Pitch += DeadZone(rot.Pitch*DeltaTime, 0.3);
+		SetControlRotation(finalQuat.Rotator());
 
 
-		
+
+
+		//static float currentPitch = 0.0;
+		//currentPitch += 30 * DeltaTime;
+		////SetControlRotation(prim->GetComponentRotation());
+		//FRotator aRotator = FRotator(currentPitch, 0, 0);
+		////Absolute things
+		//FQuat rot = HydraLatestData->controllers[0].quat;
+		////prim->SetWorldLocationAndRotation(prim->GetComponentLocation(), aRotator);
+		//FString output = FString::Printf(TEXT("in thing: "));
+		//output += aRotator.ToString();
+		//if (GEngine)
+		//{
+		//	GEngine->AddOnScreenDebugMessage(-1, .5f, FColor::Red, output);
+		//}
+		//SetControlRotation(aRotator);
+
 	}
-	HandleMovement(DeltaTime);
-
-
+	if ((currentCaptureState & ECinemotusCaptureState::ERelativeTranslation) == ECinemotusCaptureState::ERelativeTranslation)
+	{
+		HandleMovement(DeltaTime);
+	}
+}
+void ACinemotusPlayerController::PlayerTick(float DeltaTime)
+{
+	if (bumperTapTimer > 0)
+	{
+		bumperTapTimer -= DeltaTime;
+	}
+	if (currentCaptureState & ECinemotusCaptureState::EABSOLUTE)
+	{
+		AbsoluteTick(DeltaTime);
+	}
+	else
+	{
+		RelativeTick(DeltaTime);
+	}
 	Super::PlayerTick(DeltaTime);
 }
 void ACinemotusPlayerController::SetupInputComponent()
@@ -268,45 +266,41 @@ void ACinemotusPlayerController::BeginPlay()
 	possessedCinePawn = Cast<ACinemotusDefaultPawn>(GetPawn());
 }
 
- void ACinemotusPlayerController::HydraTriggerPressed(int32 controllerNum) 
+
+void ACinemotusPlayerController::HydraB4Released(int32 controllerNum)
 {
-	 if (controllerNum == 0)//todo which hands etc etc
-	 {
-		 capture = true;
-		 pawnStartingRotator = GetControlRotation();//GetPawn()->GetActorRotation(); //need to get relative Rotation etc from components later
-		 controllerStartingRotator = HydraLatestData->controllers[0].rotation;
-		
-		 
-		 GEngine->AddOnScreenDebugMessage(-1, .5f, FColor::Yellow, TEXT("SSSS"));
-	 }
+	currentCaptureState = (currentCaptureState & ECinemotusCaptureState::EABSOLUTE) ? ECinemotusCaptureState::ERelativeOff : ECinemotusCaptureState::EAbsoluteOff;
+
+}
+
+void ACinemotusPlayerController::HydraTriggerPressed(int32 controllerNum)
+{
+	currentCaptureState |= (currentCaptureState & ECinemotusCaptureState::ERELATIVE) ? ECinemotusCaptureState::ERelativeRotation : 0x0;
+	GEngine->AddOnScreenDebugMessage(-1, .5f, FColor::Yellow, TEXT("SSSS"));
+
 }
 
 
  void ACinemotusPlayerController::HydraTriggerReleased(int32 controllerNum)
  {
-	 if (controllerNum == 0)//todo which hands etc etc
-	 {
-		 capture = false;
-	 }
+	 currentCaptureState &= ~ECinemotusCaptureState::ERelativeRotation;
  }
 
  void ACinemotusPlayerController::HydraBumperPressed(int32 controllerNum)
  {
-	 if (controllerNum == 0)//todo which hands etc etc
-	 {
-		 TransCapture = true;
-		 
-
-		 GEngine->AddOnScreenDebugMessage(-1, .5f, FColor::Yellow, TEXT("BUMPERRR"));
-	 }
+	 currentCaptureState |= (currentCaptureState & ECinemotusCaptureState::ERELATIVE) ? ECinemotusCaptureState::ERelativeTranslation : 0x0;
+	 GEngine->AddOnScreenDebugMessage(-1, .5f, FColor::Yellow, TEXT("BUMPERRR"));
+	 bumperTapTimer = 0.4f;
  }
 
 
  void ACinemotusPlayerController::HydraBumperReleased(int32 controllerNum)
  {
-	 if (controllerNum == 0)//todo which hands etc etc
+	 currentCaptureState &= ~ECinemotusCaptureState::ERelativeTranslation;
+
+	 if (bumperTapTimer > 0.0f && (currentCaptureState & ECinemotusCaptureState::EABSOLUTE))
 	 {
-		 TransCapture = false;
+		 currentCaptureState = (currentCaptureState & ECinemotusCaptureState::EAbsoluteOff) == ECinemotusCaptureState::EAbsoluteOff ? ECinemotusCaptureState::EAbsolute : ECinemotusCaptureState::EAbsoluteOff;
 	 }
  }
 
@@ -316,27 +310,6 @@ void ACinemotusPlayerController::HydraControllerMoved(int32 controller,
 	FVector position, FVector velocity, FVector acceleration,
 	FRotator rotation, FRotator angularVelocity)
 {
-
-//AddActorLocalRotation deltaRotation(rotation for this frame!)
-	//rotation.ToString();
-	static FRotator lastFrameRotator = FRotator::ZeroRotator;
-
-	FRotator rot = HydraLatestData->controllers[0].rotation;
-	if (capture)
-	{
-		//GetPaw\\\\\n()->AddActorLocalRotation(rotation);
-		//GetPawn()->SetActorRelativeRotation(rot - controllerStartingRotator);
-		//SetControlRotation(   rot );//RotationInput
-		
-		controllerStartingRotator = rot;
-	}
-
-
-	
-
-//	FString output = FString::Printf(TEXT("in thing: "));
-//	output +=  rotation.ToString();
-	//GEngine->AddOnScreenDebugMessage(-1, .5f, FColor::Yellow, output);
 
 }
 
@@ -372,36 +345,108 @@ void ACinemotusPlayerController::HydraB1Pressed(int32 controllerNum)
 {
 
 
-	FRotator rotation = HydraLatestData->controllers[controllerNum].rotation;
-
-	FRotator initialRotation = FRotator(10, 20, 30);
-
-	FRotator currentRotOFController = FRotator(355, 15, 10);
-
-	FRotator whatShouldBe = FRotator(345, -5, -20);
-
-	FQuat initQuat = initialRotation.Quaternion();
-	FQuat currentQuatController = currentRotOFController.Quaternion();
-	FQuat difference = currentQuatController*initQuat.Inverse();
-	FQuat diff2 = initQuat.Inverse() * currentQuatController;//closest to 345, -5, -20
-	FQuat diff3 = initQuat * currentQuatController.Inverse();
-	FRotator two = diff2.Rotator();
-	FRotator three = diff3.Rotator();
-
-	FRotator rest = difference.Rotator();
-	FString testString = rest.ToString();
+	
 
 
 
-	//FRotator deltaROtation 
-
-
-	FString output = FString::Printf(TEXT("in thing: "));
-	output += rotation.ToString();
-	if (GEngine)
-	{
-		GEngine->AddOnScreenDebugMessage(-1, .5f, FColor::Green,testString );
-	}
 }
+
+
+
+/*BAD TIMES
+FRotator test = FRotator::ZeroRotator;
+//if (capture) TODO: capture correctly
+{
+FRotator rot = HydraLatestData->controllers[0].angular_velocity;
+FRotator res = FRotator(DeadZone(rot.Pitch*DeltaTime, 0.3), DeadZone(rot.Yaw*DeltaTime, 0.3), DeadZone(rot.Roll*DeltaTime, 0.3));
+//SetControlRotation(GetPawn()->GetActorRotation());
+//GetPawn()->AddActorLocalRotation(res);
+//
+
+//TODO: test better!
+
+UPrimitiveComponent* prim = GetPawn()->GetMovementComponent()->UpdatedComponent;
+const FQuat OldRotation = GetControlRotation().Quaternion();//prim->GetComponentQuat(); //the collider
+const FRotator OldRotationRotator = OldRotation.Rotator();
+
+
+if (true)
+{
+FRotator worldRotator = FRotator(0, DeadZone(rot.Yaw*DeltaTime, 0.0), 0);
+FRotator worldRotator1 = FRotator(DeadZone(rot.Pitch*DeltaTime, 0.0), 0, 0);
+FRotator localRotator = FRotator(0, 0, DeadZone(rot.Roll*DeltaTime, 0.0));
+const FQuat WorldRot = worldRotator.Quaternion();
+const FQuat pitchRot = worldRotator1.Quaternion();
+const FQuat LocalRot = localRotator.Quaternion();
+
+//This one does roll around local forward, pitch around world right flattened and yaw around world up
+//			FQuat finalQuat = pitchRot*WorldRot*((OldRotation*LocalRot));
+
+FQuat finalQuat = WorldRot*((OldRotation*LocalRot)*pitchRot);
+
+//FQuat finalQuat = (WorldRot*OldRotation);
+//	FQuat finalQuat = (WorldRot*((OldRotation*pitchRot)*LocalRot));
+//	prim->SetRelativeRotation(finalQuat.Rotator());
+//prim->SetWorldRotation();
+prim->SetWorldLocationAndRotation(prim->GetComponentLocation(), finalQuat);
+SetControlRotation(finalQuat.Rotator());
+}
+else //use
+{
+
+FRotator worldRotator = FRotator(0, DeadZone(rot.Yaw*DeltaTime, 0.0) + OldRotationRotator.Yaw, 0);
+FRotator worldRotator1 = FRotator(DeadZone(rot.Pitch*DeltaTime, 0.0) + OldRotationRotator.Pitch, 0, 0);
+FRotator localRotator = FRotator(0, 0, DeadZone(rot.Roll*DeltaTime, 0.0) + OldRotationRotator.Roll);
+const FQuat WorldRot = worldRotator.Quaternion();
+const FQuat pitchRot = worldRotator1.Quaternion();
+const FQuat LocalRot = localRotator.Quaternion();
+FQuat finalQuat = WorldRot*pitchRot*LocalRot;
+
+//prim->SetWorldLocationAndRotation(prim->GetComponentLocation(), finalQuat);
+
+
+static float currentPitch = 0.0;
+
+
+currentPitch += 30 * DeltaTime;
+
+//SetControlRotation(prim->GetComponentRotation());
+FRotator aRotator = FRotator(currentPitch, 0, 0);
+
+//Absolute things
+FQuat rot = HydraLatestData->controllers[0].quat;
+
+
+//prim->SetWorldLocationAndRotation(prim->GetComponentLocation(), aRotator);
+FString output = FString::Printf(TEXT("in thing: "));
+output += aRotator.ToString();
+if (GEngine)
+{
+GEngine->AddOnScreenDebugMessage(-1, .5f, FColor::Red, output);
+}
+
+SetControlRotation(finalQuat.Rotator());
+
+}
+
+
+
+
+
+
+
+//RotationInput.Roll += DeadZone(rot.Roll*DeltaTime,0.3);
+//RotationInput.Yaw += DeadZone(rot.Yaw*DeltaTime, 0.3);
+//RotationInput.Pitch += DeadZone(rot.Pitch*DeltaTime, 0.3);
+
+
+
+}
+HandleMovement(DeltaTime);
+
+
+
+
+*/
 
 

@@ -1,9 +1,29 @@
 // Copyright 1998-2014 Epic Games, Inc. All Rights Reserved.
 #pragma once
 #include "GameFramework/GameMode.h"
+
 #include "CinemotusGameMode.generated.h"
 
 class ACameraActor;
+
+
+
+
+
+
+
+// New
+//if (!!(Flags & EFlags::Flag1))
+
+
+// Enum to store the current state of gameplay.
+enum class EHydraJoystickState : uint8
+{
+	ESpeed,
+	EYawCrane,
+	EPlanarMovement,
+	ECamera
+};
 
 UCLASS(minimalapi)
 class ACinemotusGameMode : public AGameMode
@@ -19,6 +39,15 @@ class ACinemotusGameMode : public AGameMode
 
 	UFUNCTION(BlueprintCallable, Category = Pawns)
 		TArray<APawn*> GetPawnsFromBeginPlay();
+
+	EHydraJoystickState GetCurrentJoystickState() const;
+	void SetCurrentJoysticState(EHydraJoystickState NewState);
+
+
+	protected:
+		void HandleNewJoystickState(EHydraJoystickState newState);
+		
+		EHydraJoystickState currentJoystickState;
 
 private:
 	TArray<ACameraActor*> CamaeraActors;

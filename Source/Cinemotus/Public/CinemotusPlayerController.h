@@ -4,6 +4,7 @@
 
 #include "GameFramework/PlayerController.h"
 #include "HydraDelegate.h"
+#include "Engine.h"
 #include "CinemotusPlayerController.generated.h"
 
 
@@ -11,6 +12,48 @@ class ACinemotusDefaultPawn;
 /**
  * 
  */
+
+
+namespace ECinemotusCaptureState
+{
+	
+	static const uint8 EAbsolute = 0x01;
+	static const uint8 ERelativeRotation = 0x02;
+	static const uint8 ERelativeTranslation = 0x04;
+	static const uint8 ERelativeOff = 0x08;
+	static const uint8 EAbsoluteOff = 0x10;
+	static const uint8 EABSOLUTE = EAbsolute | EAbsoluteOff;
+	static const uint8 ERELATIVE = ERelativeRotation | ERelativeTranslation | ERelativeOff;
+	
+}
+
+namespace ECinemotusCaptureState
+{
+	inline const FString ToString(const uint8 State)
+	{
+		const FString ON = TEXT("ON");
+		const FString OFF = TEXT("OFF");
+
+		FString returnVal = TEXT("Absolute Mode: tap bumper to turn ");
+		if ((State & EABSOLUTE) > 0)
+		{
+			returnVal += (State & EAbsoluteOff) == EAbsoluteOff ? ON : OFF;
+		}
+		else //relative
+		{
+			returnVal = TEXT("Relative Mode: Rotation , ");
+			returnVal += ((State&ERelativeRotation) == ERelativeRotation ? ON : OFF);
+			returnVal += TEXT(" Translation ");
+			returnVal += ((State&ERelativeTranslation) == ERelativeTranslation ? ON : OFF);
+			//returnVal = FString::Printf(TEXT("Relative Mode: Rotation %s, Translation %s"), ((State&ERelativeRotation) == ERelativeRotation ? ON : OFF), ((State&ERelativeTranslation) == ERelativeTranslation ? ON : OFF));
+		}
+		return returnVal;
+	}
+}
+
+//ENUM_CLASS_FLAGS(ECinemotusCaptureState);
+
+
 UCLASS()
 class CINEMOTUS_API ACinemotusPlayerController : public APlayerController, public HydraDelegate
 {
@@ -42,6 +85,10 @@ class CINEMOTUS_API ACinemotusPlayerController : public APlayerController, publi
 		bool HydraGetHistoricalData(int32 controller, int32 historyIndex, FVector& position, FVector& velocity, FVector& acceleration, FRotator& rotation, FRotator& angularVelocity,
 		FVector2D& joystick, int32& buttons, float& trigger, bool& docked);
 
+	UFUNCTION(BlueprintCallable, Category = HydraFunctions)
+		uint8 GetCurrentCaptureState() const;
+
+
 	//Override Initialization and Tick to forward *required* hydra functions.
 
 	virtual void Tick(float DeltaTime) override;
@@ -59,6 +106,8 @@ class CINEMOTUS_API ACinemotusPlayerController : public APlayerController, publi
 
 	virtual void HydraBumperReleased(int32 controllerNum) override;
 
+	virtual void HydraB4Released(int32 controllerNum)override;
+
 	virtual void PostInitializeComponents()override;
 
 	//UFUNCTION(BlueprintImplementableEvent, Category = HydraEvents)
@@ -70,6 +119,18 @@ protected:
 	//FQuat YawWorld, PitchWorld, RollLocal;
 	//FRotator RollPitchYawRotator;
 	void HandleMovement(float DeltaTime);
+
+	
+	void HandleNewCaptureState(uint8 newState);
+	
+	void AbsoluteTick(float DeltaTime);
+	void RelativeTick(float DeltaTime);
+
+	uint8 currentCaptureState;
+
+	float bumperTapTimer;
+
+	
 private:
 	TArray<APawn*> PawnsInScene;
 	int32 currentPawnIndex;
@@ -77,10 +138,15 @@ private:
 	ACinemotusDefaultPawn* possessedCinePawn;
 
 	FRotator pawnStartingRotator;
-	FRotator controllerStartingRotator;
-	bool capture, TransCapture;
+
+	
 	
 
 	
 	
 };
+
+FORCEINLINE uint8 ACinemotusPlayerController::GetCurrentCaptureState() const
+{
+	return currentCaptureState;
+}
