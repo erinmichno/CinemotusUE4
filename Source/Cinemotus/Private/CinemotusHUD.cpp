@@ -31,8 +31,10 @@ void ACinemotusHUD::DrawHUD()
 		FVector2D TextSize;
 		const FString output = ECinemotusCaptureState::ToString(controller->GetCurrentCaptureState());
 		GetTextSize(output, TextSize.X, TextSize.Y, HUDFont);
-		
-		DrawText(output, FColor::Green, (ScreenDimensions.X - TextSize.X)*0.5f, 50, HUDFont);
+		float x = (ScreenDimensions.X - TextSize.X)*0.5f;
+		DrawText(output, FColor::Green, x, 50, HUDFont);
+		DrawText(controller->GetJoystickHeaderText(), FColor::Black, x, 110, HUDFont);
+		DrawText(controller->GetJoystickVerboseText(), FColor::Black, x, 170, HUDFont);
 	}
 
 //	FString PowerLevelString = FString::Printf(TEXT("%10.1f"), FMath::Abs(MyCharacter->PowerLevel));

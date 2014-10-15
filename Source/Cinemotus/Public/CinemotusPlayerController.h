@@ -14,6 +14,38 @@ class ACinemotusDefaultPawn;
  */
 
 
+namespace ECinemotusJoystickState
+{
+	static const uint8 EYawCrane = 0x01;
+	static const uint8 EPlanarMovement = 0x02;
+	static const uint8 ESpeed = 0x04;
+}
+
+namespace ECinemotusJoystickState
+{
+	inline const FString ToString(const uint8 State)
+	{
+
+		FString returnVal = TEXT("Joystick Mode: ");
+		switch (State)
+		{
+		case EYawCrane:
+			returnVal += TEXT("Yaw and Crane");
+			break;
+		case EPlanarMovement:
+			returnVal += TEXT("Planar Movement");
+			break;
+		case ESpeed:
+			returnVal += TEXT("Speed");
+			break;
+		default:
+			returnVal += TEXT("UNKNOWN");
+		}
+		return returnVal;
+	}
+
+}
+
 namespace ECinemotusCaptureState
 {
 	
@@ -88,6 +120,14 @@ class CINEMOTUS_API ACinemotusPlayerController : public APlayerController, publi
 	UFUNCTION(BlueprintCallable, Category = HydraFunctions)
 		uint8 GetCurrentCaptureState() const;
 
+	UFUNCTION(BlueprintCallable, Category = HydraFunctions)
+		 bool ShouldDrawHydraHUDVerbose() const;
+
+	UFUNCTION(BlueprintCallable, Category = HydraFunctions)
+	FString GetJoystickVerboseText() const;
+
+	UFUNCTION(BlueprintCallable, Category = HydraFunctions)
+	FString GetJoystickHeaderText() const;
 
 	//Override Initialization and Tick to forward *required* hydra functions.
 
@@ -98,16 +138,17 @@ class CINEMOTUS_API ACinemotusPlayerController : public APlayerController, publi
 	virtual void HydraB1Pressed(int32 controllerNum) override;
 
 	virtual void HydraTriggerPressed(int32 controllerNum) override;
-
 	virtual void HydraTriggerReleased(int32 controllerNum) override;
 
-
 	virtual void HydraBumperPressed(int32 controllerNum) override;
-
 	virtual void HydraBumperReleased(int32 controllerNum) override;
 
-	virtual void HydraB4Released(int32 controllerNum)override;
+	virtual void HydraJoystickReleased(int32 controllerNum) override;
+	virtual void HydraB1Released(int32 controllerNum)override;
+	virtual void HydraB2Released(int32 controllerNum)override;
+	virtual void HydraB3Released(int32 controllerNum)override;
 
+	virtual void HydraB4Released(int32 controllerNum)override;
 	virtual void PostInitializeComponents()override;
 
 	//UFUNCTION(BlueprintImplementableEvent, Category = HydraEvents)
@@ -115,10 +156,12 @@ class CINEMOTUS_API ACinemotusPlayerController : public APlayerController, publi
 		FVector position, FVector velocity, FVector acceleration,
 		FRotator rotation, FRotator angularVelocity) override;
 
+		//virtual void HydraJoystickMoved(int32 controller, FVector2D movement)override;
+
 protected:
 	//FQuat YawWorld, PitchWorld, RollLocal;
 	//FRotator RollPitchYawRotator;
-	void HandleMovement(float DeltaTime);
+	void HandleMovement(float DeltaTime, bool useHydraMotion);
 
 	
 	void HandleNewCaptureState(uint8 newState);
@@ -127,8 +170,19 @@ protected:
 	void RelativeTick(float DeltaTime);
 
 	uint8 currentCaptureState;
+	uint8 currentJoystickState;
+	FString joystickHeaderText, joystickVerboseText;
+
+	void HandleJoystickStateChange(uint8 requestedState);
+	FString BuildVerboseJoystickText(const uint8 state) const;
+	void HandleJoysticks(FVector2D joyPos);
+
 
 	float bumperTapTimer;
+
+	bool bHydraVerboseHUD;
+	float fSpeedMulitplier;
+	void UpdateSpeedMultiplier(float val);
 
 	
 private:
@@ -138,6 +192,9 @@ private:
 	ACinemotusDefaultPawn* possessedCinePawn;
 
 	FRotator pawnStartingRotator;
+
+	float addYaw, TotalYawAbs;
+	FVector vXYandCrane;
 
 	
 	
@@ -150,3 +207,20 @@ FORCEINLINE uint8 ACinemotusPlayerController::GetCurrentCaptureState() const
 {
 	return currentCaptureState;
 }
+
+
+FORCEINLINE bool ACinemotusPlayerController::ShouldDrawHydraHUDVerbose() const
+{
+	return bHydraVerboseHUD;
+}
+
+FORCEINLINE FString ACinemotusPlayerController::GetJoystickVerboseText() const
+{
+	return joystickVerboseText;
+}
+
+FORCEINLINE FString ACinemotusPlayerController::GetJoystickHeaderText() const
+{
+	return joystickHeaderText;
+}
+

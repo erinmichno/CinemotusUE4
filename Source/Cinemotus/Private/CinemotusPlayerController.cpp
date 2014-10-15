@@ -16,8 +16,13 @@ ACinemotusPlayerController::ACinemotusPlayerController(const class FPostConstruc
 	bumperTapTimer = 0;
 
 	pawnStartingRotator = FRotator::ZeroRotator;
+	bHydraVerboseHUD = true;
 	 
 	 currentCaptureState = ECinemotusCaptureState::ERelativeOff;
+	 currentJoystickState = ECinemotusJoystickState::ESpeed;
+	 fSpeedMulitplier = 1.0f;
+	 joystickHeaderText = ECinemotusJoystickState::ToString(currentJoystickState);
+	 joystickVerboseText = BuildVerboseJoystickText(currentJoystickState);
 	 /*ViewPitchMin = -89.9f;
 	ViewPitchMax = 89.9f;
 	ViewYawMin = 0.f;
@@ -25,9 +30,50 @@ ACinemotusPlayerController::ACinemotusPlayerController(const class FPostConstruc
 	ViewRollMin = -89.9f;
 	ViewRollMax = 89.9f;
 	 */
+	 TotalYawAbs = addYaw = 0;
+	 vXYandCrane = FVector::ZeroVector;
 }
 
 //
+
+FString ACinemotusPlayerController::BuildVerboseJoystickText(const uint8 state) const
+{
+	FString retVal = TEXT("UNKNOWN");
+	switch (state)
+	{
+	case ECinemotusJoystickState::ESpeed:
+	{
+		
+		retVal = FString::Printf(TEXT("Current Speed Multiplier: %10.4f"), fSpeedMulitplier);
+	}
+		break;
+	case ECinemotusJoystickState::EYawCrane:
+	{
+		retVal = FString::Printf(TEXT("YAW CRANE DETAILS"));
+	}
+		break;
+	case ECinemotusJoystickState::EPlanarMovement:
+	{
+		retVal = FString::Printf(TEXT("MOVEMENT DETAILS"));
+	}
+		break;
+	default:
+		retVal = TEXT("Unhandled State");
+
+	}
+	return retVal;
+}
+
+
+
+void ACinemotusPlayerController::HandleJoystickStateChange(uint8 requestedState)
+{
+	if (requestedState != currentJoystickState)
+	{
+		currentJoystickState = requestedState;
+		joystickHeaderText = ECinemotusJoystickState::ToString(currentJoystickState);
+	}
+}
 
 
 
@@ -73,6 +119,8 @@ void ACinemotusPlayerController::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 	HydraTick(DeltaTime);
+	joystickHeaderText = ECinemotusJoystickState::ToString(currentJoystickState);
+	joystickVerboseText = BuildVerboseJoystickText(currentJoystickState);
 }
 
 
@@ -104,7 +152,7 @@ float DeadZone(float val, float tolerance)
 //	}//EAxis::Y for right  and 	AddMovementInput(FVector::UpVector, Val); for UP'
 //}
 
-void ACinemotusPlayerController::HandleMovement(float DeltaTime)
+void ACinemotusPlayerController::HandleMovement(float DeltaTime, bool useHydraMotion= false)
 {
 
 	APawn* pawn = GetPawn();
@@ -114,34 +162,55 @@ void ACinemotusPlayerController::HandleMovement(float DeltaTime)
 	}
 
 	//check velocities
-	FVector velocity = HydraLatestData->controllers[0].velocity;
+	FVector velocity = useHydraMotion ? HydraLatestData->controllers[0].velocity : FVector::ZeroVector;
 	FRotationMatrix mat(GetControlRotation());
 	float scaleCmToMetres = 10;
-	pawn->AddMovementInput(mat.GetScaledAxis(EAxis::X), velocity.X*DeltaTime * scaleCmToMetres);
-	pawn->AddMovementInput(mat.GetScaledAxis(EAxis::Y), velocity.Y*DeltaTime * scaleCmToMetres);
-	pawn->AddMovementInput(FVector::UpVector, velocity.Z*DeltaTime*scaleCmToMetres);
+	pawn->AddMovementInput(mat.GetScaledAxis(EAxis::X), velocity.X*DeltaTime * scaleCmToMetres*fSpeedMulitplier + vXYandCrane.X);
+	pawn->AddMovementInput(mat.GetScaledAxis(EAxis::Y), velocity.Y*DeltaTime * scaleCmToMetres*fSpeedMulitplier + vXYandCrane.Y);
+	pawn->AddMovementInput(FVector::UpVector, velocity.Z*DeltaTime*scaleCmToMetres + vXYandCrane.Z);
 	//pawn->AddMovementInput(velocity, DeltaTime*10);
 
 }
 
 void ACinemotusPlayerController::AbsoluteTick(float DeltaTime)
 {
+
+	
+	TotalYawAbs += addYaw;
+	UPrimitiveComponent* prim = GetPawn()->GetMovementComponent()->UpdatedComponent;
+	bool SetPrimDirectly = true;
+	FQuat finalQuat;
+
 	if (((currentCaptureState&ECinemotusCaptureState::EAbsolute) == ECinemotusCaptureState::EAbsolute) && 
 		((currentCaptureState&ECinemotusCaptureState::EAbsoluteOff) == 0))
 	{
-		SetControlRotation(HydraLatestData->controllers[0].rotation);
-		HandleMovement(DeltaTime);
+		finalQuat = FRotator(0, TotalYawAbs, 0).Quaternion()*(HydraLatestData->controllers[0].quat);
 	}
+	else
+	{
+		finalQuat =  FRotator(0, addYaw, 0).Quaternion()*prim->GetComponentQuat();
+	}
+	SetControlRotation(finalQuat.Rotator());
+	if (SetPrimDirectly && prim)
+	{
+		prim->SetWorldLocationAndRotation(prim->GetComponentLocation(), finalQuat);// not sure need
+	}
+
+
+	HandleMovement(DeltaTime, ((currentCaptureState&ECinemotusCaptureState::EAbsolute) == ECinemotusCaptureState::EAbsolute));
 }
 void ACinemotusPlayerController::RelativeTick(float DeltaTime)
 {
+
+	UPrimitiveComponent* prim = GetPawn()->GetMovementComponent()->UpdatedComponent;
+	bool SetPrimDirectly = true;
+	FQuat finalQuat;
 	if ((currentCaptureState & ECinemotusCaptureState::ERelativeRotation) == ECinemotusCaptureState::ERelativeRotation)
 	{
-		UPrimitiveComponent* prim = GetPawn()->GetMovementComponent()->UpdatedComponent;
 		FRotator rot = HydraLatestData->controllers[0].angular_velocity;
-		const FQuat OldRotation = prim->GetComponentQuat();//GetControlRotation().Quaternion();
+		const FQuat OldRotation = prim->GetComponentQuat();//GetControlRotation().Quaternion(); //TODO: hold onto a quaternion potentially
 		const FRotator OldRotationRotator = OldRotation.Rotator();
-		FRotator worldRotator = FRotator(0, DeadZone(rot.Yaw*DeltaTime, 0.0), 0);
+		FRotator worldRotator = FRotator(0, DeadZone(rot.Yaw*DeltaTime, 0.0) + addYaw, 0);
 		FRotator worldRotator1 = FRotator(DeadZone(rot.Pitch*DeltaTime, 0.0), 0, 0);
 		FRotator localRotator = FRotator(0, 0, DeadZone(rot.Roll*DeltaTime, 0.0));
 		const FQuat WorldRot = worldRotator.Quaternion();
@@ -151,62 +220,114 @@ void ACinemotusPlayerController::RelativeTick(float DeltaTime)
 		////This one does roll around local forward, pitch around world right flattened and yaw around world up
 		////			FQuat finalQuat = pitchRot*WorldRot*((OldRotation*LocalRot));
 
-		FQuat finalQuat = WorldRot*((OldRotation*LocalRot)*pitchRot);
-
-		
-
-		/*FRotator worldRotator = FRotator(0, DeadZone(rot.Yaw*DeltaTime, 0.0) + OldRotationRotator.Yaw, 0);
-		FRotator worldRotator1 = FRotator(DeadZone(rot.Pitch*DeltaTime, 0.0) + OldRotationRotator.Pitch, 0, 0);
-		FRotator localRotator = FRotator(0, 0, DeadZone(rot.Roll*DeltaTime, 0.0) + OldRotationRotator.Roll);
-		const FQuat WorldRot = worldRotator.Quaternion();
-		const FQuat pitchRot = worldRotator1.Quaternion();
-		const FQuat LocalRot = localRotator.Quaternion();
-		FQuat finalQuat = WorldRot*pitchRot*LocalRot;*/
-	
-
-
-		bool SetPrimDirectly = true;
-		if (SetPrimDirectly)
-		{
-			
-			if (prim)
-			{
-				prim->SetWorldLocationAndRotation(prim->GetComponentLocation(), finalQuat);// not sure need
-			}
-		}
-
-		SetControlRotation(finalQuat.Rotator());
-
-
-
-
-		//static float currentPitch = 0.0;
-		//currentPitch += 30 * DeltaTime;
-		////SetControlRotation(prim->GetComponentRotation());
-		//FRotator aRotator = FRotator(currentPitch, 0, 0);
-		////Absolute things
-		//FQuat rot = HydraLatestData->controllers[0].quat;
-		////prim->SetWorldLocationAndRotation(prim->GetComponentLocation(), aRotator);
-		//FString output = FString::Printf(TEXT("in thing: "));
-		//output += aRotator.ToString();
-		//if (GEngine)
-		//{
-		//	GEngine->AddOnScreenDebugMessage(-1, .5f, FColor::Red, output);
-		//}
-		//SetControlRotation(aRotator);
-
+		finalQuat = WorldRot*((OldRotation*LocalRot)*pitchRot);
 	}
-	if ((currentCaptureState & ECinemotusCaptureState::ERelativeTranslation) == ECinemotusCaptureState::ERelativeTranslation)
+	else
 	{
-		HandleMovement(DeltaTime);
+		finalQuat = FRotator(0, addYaw, 0).Quaternion()*prim->GetComponentQuat();
+	}
+
+	SetControlRotation(finalQuat.Rotator());
+	if (SetPrimDirectly && prim)
+	{
+		prim->SetWorldLocationAndRotation(prim->GetComponentLocation(), finalQuat);// not sure need
+	}
+
+
+
+	HandleMovement(DeltaTime, (currentCaptureState & ECinemotusCaptureState::ERelativeTranslation) == ECinemotusCaptureState::ERelativeTranslation);
+
+}
+
+
+
+void ACinemotusPlayerController::HandleJoysticks(FVector2D joyPos)
+{
+
+	addYaw = 0;
+	vXYandCrane = FVector::ZeroVector;
+	float DeltaTime = GetWorld()->GetDeltaSeconds();
+	switch (currentJoystickState)
+	{
+	case ECinemotusJoystickState::ESpeed:
+		UpdateSpeedMultiplier(joyPos.Y);
+		break;
+	case ECinemotusJoystickState::EPlanarMovement:
+		//
+		vXYandCrane.X += joyPos.Y*DeltaTime*fSpeedMulitplier*200.0f;
+		vXYandCrane.Y += joyPos.X*DeltaTime*fSpeedMulitplier*200.0f;
+		break;
+	case ECinemotusJoystickState::EYawCrane:
+	{
+		if (FMath::Abs(joyPos.X) >= FMath::Abs(joyPos.Y))
+		{
+			//add Yaw amount
+			addYaw += joyPos.X*DeltaTime*60.0f;
+		}
+		else
+		{
+			vXYandCrane.Z += joyPos.Y*DeltaTime*fSpeedMulitplier*100.0f;
+		}
+	}
+		//
+		break;
+
+
 	}
 }
+
+
+
+
+
+void ACinemotusPlayerController::UpdateSpeedMultiplier(float val)
+{
+	//if (Input.GetKey(KeyCode.KeypadPlus) || Input.GetKey(KeyCode.Equals))
+	//{
+	//	float z = 1 + 0.1f * Time.deltaTime * 4;
+	//	targetZoomLevel *= z;
+	//}
+	//else if (Input.GetKey(KeyCode.KeypadMinus) || Input.GetKey(KeyCode.Minus))
+	//{
+	//	float z = 1 + 0.1f * Time.deltaTime * 4;
+	//	targetZoomLevel *= 1 / z;
+	//}
+	float DeltaTime = GetWorld()->GetDeltaSeconds();
+	if (FMath::Abs(val) > 1.1)
+	{
+		return;
+	}
+
+	if (val > 0.1f)
+	{
+		float z = 1.0f + val*DeltaTime * 4;
+		fSpeedMulitplier *= z;
+	}
+	else if (val < -0.1f)
+	{
+		float z = 1.0f + -val*DeltaTime*4;
+		fSpeedMulitplier *= 1 / z;
+	}
+	//clamp
+	fSpeedMulitplier = FMath::Clamp(fSpeedMulitplier, 0.00625f, 16.0f);
+
+}
+
+
 void ACinemotusPlayerController::PlayerTick(float DeltaTime)
 {
 	if (bumperTapTimer > 0)
 	{
 		bumperTapTimer -= DeltaTime;
 	}
+
+	//GET JOYSTICK DATA
+	FVector2D joysticks = HydraLatestData->controllers[0].joystick;
+	HandleJoysticks(HydraLatestData->controllers[0].joystick);
+	
+	
+
+	//HANDLE MOTION CONTROL
 	if (currentCaptureState & ECinemotusCaptureState::EABSOLUTE)
 	{
 		AbsoluteTick(DeltaTime);
@@ -215,6 +336,9 @@ void ACinemotusPlayerController::PlayerTick(float DeltaTime)
 	{
 		RelativeTick(DeltaTime);
 	}
+
+	//COMBINE MOTION AND JOYSTICK FOR FINAL DATA
+
 	Super::PlayerTick(DeltaTime);
 }
 void ACinemotusPlayerController::SetupInputComponent()
@@ -264,6 +388,26 @@ void ACinemotusPlayerController::BeginPlay()
 	}
 
 	possessedCinePawn = Cast<ACinemotusDefaultPawn>(GetPawn());
+}
+
+void ACinemotusPlayerController::HydraB1Released(int32 controllerNum)//translation
+{
+	HandleJoystickStateChange(ECinemotusJoystickState::EPlanarMovement);
+}
+void ACinemotusPlayerController::HydraB2Released(int32 controllerNum) //speed
+{
+
+	HandleJoystickStateChange(ECinemotusJoystickState::ESpeed);
+}
+void ACinemotusPlayerController::HydraB3Released(int32 controllerNum)//yaw crane
+{
+
+	HandleJoystickStateChange(ECinemotusJoystickState::EYawCrane);
+}
+
+void ACinemotusPlayerController::HydraJoystickReleased(int32 controllerNum)
+{
+
 }
 
 
