@@ -167,7 +167,7 @@ void ACinemotusPlayerController::HandleMovement(float DeltaTime, bool useHydraMo
 	float scaleCmToMetres = 10;
 	pawn->AddMovementInput(mat.GetScaledAxis(EAxis::X), velocity.X*DeltaTime * scaleCmToMetres*fSpeedMulitplier + vXYandCrane.X);
 	pawn->AddMovementInput(mat.GetScaledAxis(EAxis::Y), velocity.Y*DeltaTime * scaleCmToMetres*fSpeedMulitplier + vXYandCrane.Y);
-	pawn->AddMovementInput(FVector::UpVector, velocity.Z*DeltaTime*scaleCmToMetres + vXYandCrane.Z);
+	pawn->AddMovementInput(FVector::UpVector, velocity.Z*DeltaTime*scaleCmToMetres*fSpeedMulitplier + vXYandCrane.Z);
 	//pawn->AddMovementInput(velocity, DeltaTime*10);
 
 }
@@ -266,7 +266,7 @@ void ACinemotusPlayerController::HandleJoysticks(FVector2D joyPos)
 		}
 		else
 		{
-			vXYandCrane.Z += joyPos.Y*DeltaTime*fSpeedMulitplier*100.0f;
+			vXYandCrane.Z += joyPos.Y*DeltaTime*fSpeedMulitplier*200.0f;
 		}
 	}
 		//
