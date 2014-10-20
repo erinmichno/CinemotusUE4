@@ -162,6 +162,7 @@ protected:
 	//FQuat YawWorld, PitchWorld, RollLocal;
 	//FRotator RollPitchYawRotator;
 	void HandleMovement(float DeltaTime, bool useHydraMotion);
+	void HandleMovementAbs(float DeltaTime, bool useHydraMotion);
 
 	
 	void HandleNewCaptureState(uint8 newState);
