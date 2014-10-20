@@ -161,7 +161,7 @@ class CINEMOTUS_API ACinemotusPlayerController : public APlayerController, publi
 protected:
 	//FQuat YawWorld, PitchWorld, RollLocal;
 	//FRotator RollPitchYawRotator;
-	void HandleMovement(float DeltaTime, bool useHydraMotion);
+	//void HandleMovement(float DeltaTime, bool useHydraMotion);
 	void HandleMovementAbs(float DeltaTime, bool useHydraMotion);
 
 	
