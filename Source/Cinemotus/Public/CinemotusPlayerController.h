@@ -9,6 +9,7 @@
 
 
 class ACinemotusDefaultPawn;
+class HydraSingleController;
 /**
  * 
  */
@@ -102,20 +103,11 @@ class CINEMOTUS_API ACinemotusPlayerController : public APlayerController, publi
 
 
 	//FROM HydraDelegate
-	/** Check if the hydra is available/plugged in.*/
-	UFUNCTION(BlueprintCallable, Category = HydraFunctions)
-		bool HydraIsAvailable();
-	/** Detemine which hand you're holding the hydra in. Determined and reset on docking the controller.*/
-	UFUNCTION(BlueprintCallable, Category = HydraFunctions)
-		int32 HydraWhichHand(int32 controller);
-	/** Poll for latest data. Returns false if data is unavailable.*/
-	UFUNCTION(BlueprintCallable, Category = HydraFunctions)
-		bool HydraGetLatestData(int32 controller, FVector& position, FVector& velocity, FVector& acceleration, FRotator& rotation, FRotator& angularVelocity,
-		FVector2D& joystick, int32& buttons, float& trigger, bool& docked);
-	/** Poll for historical data. Valid index is 0-9. Returns false if data is unavailable.*/
-	UFUNCTION(BlueprintCallable, Category = HydraFunctions)
-		bool HydraGetHistoricalData(int32 controller, int32 historyIndex, FVector& position, FVector& velocity, FVector& acceleration, FRotator& rotation, FRotator& angularVelocity,
-		FVector2D& joystick, int32& buttons, float& trigger, bool& docked);
+	//Callable Blueprint functions - Need to be defined for direct access
+	virtual bool HydraIsAvailable() override;
+	virtual HydraControllerHand HydraWhichHand(int32 controllerId) override;	//call to determine which hand the controller is held in. Determined and reset on controller docking.
+	virtual sixenseControllerDataUE* HydraGetLatestData(int32 controllerId) override;
+	virtual sixenseControllerDataUE* HydraGetHistoricalData(int32 controllerId, int32 historyIndex) override;
 
 	UFUNCTION(BlueprintCallable, Category = HydraFunctions)
 		uint8 GetCurrentCaptureState() const;

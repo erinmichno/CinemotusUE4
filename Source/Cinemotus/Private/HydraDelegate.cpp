@@ -4,6 +4,48 @@
 #include "HydraDelegate.h"
 #include "IHydraPlugin.h"
 
+//FKey declarations
+//Define each FKey const in a .cpp so we can compile
+const FKey EKeysHydra::HydraLeftJoystickX("HydraLeftJoystickX");
+const FKey EKeysHydra::HydraLeftJoystickY("HydraLeftJoystickY");
+const FKey EKeysHydra::HydraLeftJoystickClick("HydraLeftJoystickClick");
+const FKey EKeysHydra::HydraLeftB1("HydraLeftB1");
+const FKey EKeysHydra::HydraLeftB2("HydraLeftB2");
+const FKey EKeysHydra::HydraLeftB3("HydraLeftB3");
+const FKey EKeysHydra::HydraLeftB4("HydraLeftB4");
+const FKey EKeysHydra::HydraLeftStart("HydraLeftStart");
+const FKey EKeysHydra::HydraLeftTrigger("HydraLeftTrigger");
+const FKey EKeysHydra::HydraLeftTriggerClick("HydraLeftTriggerAxis");
+const FKey EKeysHydra::HydraLeftBumper("HydraLeftBumper");
+
+const FKey EKeysHydra::HydraLeftMotionX("HydraLeftMotionX");
+const FKey EKeysHydra::HydraLeftMotionY("HydraLeftMotionY");
+const FKey EKeysHydra::HydraLeftMotionZ("HydraLeftMotionZ");
+
+const FKey EKeysHydra::HydraLeftRotationPitch("HydraLeftRotationPitch");
+const FKey EKeysHydra::HydraLeftRotationYaw("HydraLeftRotationYaw");
+const FKey EKeysHydra::HydraLeftRotationRoll("HydraLeftRotationRoll");
+
+const FKey EKeysHydra::HydraRightJoystickX("HydraRightJoystickX");
+const FKey EKeysHydra::HydraRightJoystickY("HydraRightJoystickY");
+const FKey EKeysHydra::HydraRightJoystickClick("HydraRightJoystickClick");
+const FKey EKeysHydra::HydraRightB1("HydraRightB1");
+const FKey EKeysHydra::HydraRightB2("HydraRightB2");
+const FKey EKeysHydra::HydraRightB3("HydraRightB3");
+const FKey EKeysHydra::HydraRightB4("HydraRightB4");
+const FKey EKeysHydra::HydraRightStart("HydraRightStart");
+const FKey EKeysHydra::HydraRightTrigger("HydraRightTrigger");
+const FKey EKeysHydra::HydraRightTriggerClick("HydraRightTriggerAxis");
+const FKey EKeysHydra::HydraRightBumper("HydraRightBumper");
+
+const FKey EKeysHydra::HydraRightMotionX("HydraRightMotionX");
+const FKey EKeysHydra::HydraRightMotionY("HydraRightMotionY");
+const FKey EKeysHydra::HydraRightMotionZ("HydraRightMotionZ");
+
+const FKey EKeysHydra::HydraRightRotationPitch("HydraRightRotationPitch");
+const FKey EKeysHydra::HydraRightRotationYaw("HydraRightRotationYaw");
+const FKey EKeysHydra::HydraRightRotationRoll("HydraRightRotationRoll");
+
 /** Empty Event Functions, no Super call required, because they don't do anything! */
 void HydraDelegate::HydraControllerEnabled(int32 controller){}
 void HydraDelegate::HydraControllerDisabled(int32 controller){}
@@ -43,39 +85,33 @@ bool HydraDelegate::HydraIsAvailable()
 }
 
 /** Call to determine which hand you're holding the controller in. Determine by last docking position.*/
-int32 HydraDelegate::HydraWhichHand(int32 controller)
+HydraControllerHand HydraDelegate::HydraWhichHand(int32 controller)
 {
-	return HydraLatestData->controllers[controller].which_hand;
+	return (HydraControllerHand)HydraLatestData->controllers[controller].which_hand;
 }
 
 /** Poll for latest data.*/
-bool HydraDelegate::HydraGetLatestData(int32 controller, FVector& position, FVector& velocity, FVector& acceleration, FRotator& rotation, FRotator& angularVelocity,
-	FVector2D& joystick, int32& buttons, float& trigger, bool& docked)
-{
-	if (controller > 4 || controller < 0){ return false; }
 
-	return HydraGetHistoricalData(controller, 0, position, velocity, acceleration, rotation, angularVelocity ,joystick, buttons, trigger, docked);
+sixenseControllerDataUE* HydraDelegate::HydraGetLatestData(int32 controllerId)
+{
+	if ((controllerId > MAX_CONTROLLERS_SUPPORTED) || (controllerId < 0))
+	{
+		return NULL;
+	}
+	return HydraGetHistoricalData(controllerId, 0);
 }
 
 /** Poll for historical data. Valid index is 0-9 */
-bool HydraDelegate::HydraGetHistoricalData(int32 controller, int32 historyIndex, FVector& position, FVector& velocity, FVector& acceleration, FRotator& rotation, FRotator& angularVelocity,
-	FVector2D& joystick, int32& buttons, float& trigger, bool& docked)
+sixenseControllerDataUE* HydraDelegate::HydraGetHistoricalData(int32 controllerId, int32 historyIndex)
 {
-	if (historyIndex<0 || historyIndex>9){ return false; }
-	if (controller > 4 || controller < 0){ return false; }
+	if ((historyIndex<0) || (historyIndex>9) || (controllerId > MAX_CONTROLLERS_SUPPORTED) || (controllerId < 0))
+	{
+		return NULL;
+	}
+	sixenseControllerDataUE* data;
+	data = &HydraHistoryData[historyIndex].controllers[controllerId];
 
-	sixenseControllerDataUE* data = &HydraHistoryData[historyIndex].controllers[controller];
-
-	position = data->position;
-	velocity = data->velocity;
-	acceleration = data->acceleration;
-	rotation = data->rotation;
-	angularVelocity = data->angular_velocity;
-	joystick = data->joystick;
-	buttons = data->buttons;
-	trigger = data->trigger;
-	docked = data->is_docked;
-	return data->enabled;
+	return data;
 }
 
 void HydraDelegate::HydraStartup()

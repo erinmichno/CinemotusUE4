@@ -6,6 +6,7 @@
 #include "Engine.h"
 #include "CinemotusDefaultPawn.h"
 #include "CinemotusGameMode.h"
+//#include "HyrdaSingleController.h"
 #include "Kismet/GameplayStatics.h"
 
 static const int CAM_HAND = 1;
@@ -101,20 +102,18 @@ bool ACinemotusPlayerController::HydraIsAvailable()
 {
 	return HydraDelegate::HydraIsAvailable();
 }
-int32 ACinemotusPlayerController::HydraWhichHand(int32 controller)
+HydraControllerHand ACinemotusPlayerController::HydraWhichHand(int32 controllerId)	//call to determine which hand the controller is held in. Determined and reset on controller docking.
 {
-	return HydraDelegate::HydraWhichHand(controller);
+	return HydraDelegate::HydraWhichHand(controllerId);
 }
-bool ACinemotusPlayerController::HydraGetLatestData(int32 controller, FVector& position, FVector& velocity, FVector& acceleration, FRotator& rotation, FRotator& angularVelocity,
-	FVector2D& joystick, int32& buttons, float& trigger, bool& docked)
+sixenseControllerDataUE* ACinemotusPlayerController::HydraGetLatestData(int32 controllerId)
 {
-	return HydraDelegate::HydraGetLatestData(controller, position, velocity, acceleration, rotation, angularVelocity, joystick, buttons, trigger, docked);
+	return HydraDelegate::HydraGetLatestData(controllerId);
 }
-bool ACinemotusPlayerController::HydraGetHistoricalData(int32 controller, int32 historyIndex, FVector& position, FVector& velocity, FVector& acceleration, FRotator& rotation, FRotator& angularVelocity,
-	FVector2D& joystick, int32& buttons, float& trigger, bool& docked)
-{
-	return HydraDelegate::HydraGetHistoricalData(controller, historyIndex, position, velocity, acceleration, rotation, angularVelocity, joystick, buttons, trigger, docked);
-}
+ sixenseControllerDataUE* ACinemotusPlayerController::HydraGetHistoricalData(int32 controllerId, int32 historyIndex)
+ {
+	 return HydraDelegate::HydraGetHistoricalData( controllerId,  historyIndex);
+ }
 
 //Required Overrides, forward startup and tick.
 void ACinemotusPlayerController::Tick(float DeltaTime)
