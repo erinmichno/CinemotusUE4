@@ -169,6 +169,7 @@ protected:
 	void HandleJoystickStateChange(uint8 requestedState);
 	FString BuildVerboseJoystickText(const uint8 state) const;
 	void HandleJoysticks(FVector2D joyPos);
+	void HandleOffHandJoysticks(FVector2D joyPos);
 
 
 	float bumperTapTimer;
@@ -188,6 +189,7 @@ private:
 
 	float addYaw, TotalYawAbs;
 	FVector vXYandCrane;
+	FVector offHandPlanarMovement;
 
 	
 	

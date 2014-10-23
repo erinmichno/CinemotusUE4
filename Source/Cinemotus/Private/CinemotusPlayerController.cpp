@@ -187,25 +187,28 @@ void ACinemotusPlayerController::HandleMovementAbs(float DeltaTime, bool useHydr
 	pawn->AddMovementInput(mat.GetScaledAxis(EAxis::Z), velRel.Z*DeltaTime * scaleCmToMetres*fSpeedMulitplier);
 	pawn->AddMovementInput(FVector::UpVector, vXYandCrane.Z);
 
+
+	//Add Movement input for offhand
+
+	FVector xPlanar = mat.GetScaledAxis(EAxis::X);
+	xPlanar.Z = 0;
+	bool didNorm = xPlanar.Normalize();
+	if (!didNorm)
+	{ 
+		xPlanar.X = 1.0; xPlanar.Normalize(); }
+	pawn->AddMovementInput(xPlanar, offHandPlanarMovement.X);
+
+
+	FVector yPlanar = mat.GetScaledAxis(EAxis::Y);
+	yPlanar.Z = 0;
+	didNorm = yPlanar.Normalize();
+	if (!didNorm) { yPlanar.Y = 1.0; yPlanar.Normalize(); }
+	pawn->AddMovementInput(yPlanar, offHandPlanarMovement.Y);
+
+
+
 }
 
-//void ACinemotusPlayerController::HandleMovement(float DeltaTime, bool useHydraMotion= false)
-//{
-//
-//	APawn* pawn = GetPawn();
-//	if (!pawn)
-//	{
-//		return;
-//	}
-//
-//	//check velocities
-//	FVector velocity = useHydraMotion ? HydraLatestData->controllers[CAM_HAND].velocity : FVector::ZeroVector;
-//	FRotationMatrix mat(GetControlRotation());
-//	float scaleCmToMetres = 10;
-//	pawn->AddMovementInput(mat.GetScaledAxis(EAxis::X), velocity.X*DeltaTime * scaleCmToMetres*fSpeedMulitplier + vXYandCrane.X);
-//	pawn->AddMovementInput(mat.GetScaledAxis(EAxis::Y), velocity.Y*DeltaTime * scaleCmToMetres*fSpeedMulitplier + vXYandCrane.Y);
-//	pawn->AddMovementInput(FVector::UpVector, velocity.Z*DeltaTime*scaleCmToMetres*fSpeedMulitplier + vXYandCrane.Z);
-//}
 
 void ACinemotusPlayerController::AbsoluteTick(float DeltaTime)
 {
@@ -275,6 +278,13 @@ void ACinemotusPlayerController::RelativeTick(float DeltaTime)
 }
 
 
+void ACinemotusPlayerController::HandleOffHandJoysticks(FVector2D joyPos)
+{
+	offHandPlanarMovement = FVector::ZeroVector;
+	float DeltaTime = GetWorld()->GetDeltaSeconds();
+	offHandPlanarMovement.X += joyPos.Y*DeltaTime*fSpeedMulitplier*200.0f;
+	offHandPlanarMovement.Y += joyPos.X*DeltaTime*fSpeedMulitplier*200.0f;
+}
 
 void ACinemotusPlayerController::HandleJoysticks(FVector2D joyPos)
 {
@@ -357,11 +367,11 @@ void ACinemotusPlayerController::PlayerTick(float DeltaTime)
 	}
 
 	//GET JOYSTICK DATA
-	FVector2D joysticks = HydraLatestData->controllers[CAM_HAND].joystick;
+	
 	HandleJoysticks(HydraLatestData->controllers[CAM_HAND].joystick);
+	HandleOffHandJoysticks(HydraLatestData->controllers[CAM_HAND == 0 ? 1 : 0].joystick);
 	
 	
-
 	//HANDLE MOTION CONTROL
 	if (currentCaptureState & ECinemotusCaptureState::EABSOLUTE)
 	{
