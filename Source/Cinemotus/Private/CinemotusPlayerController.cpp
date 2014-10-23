@@ -22,7 +22,7 @@ ACinemotusPlayerController::ACinemotusPlayerController(const class FPostConstruc
 	bHydraVerboseHUD = true;
 	 
 	 currentCaptureState = ECinemotusCaptureState::ERelativeOff;
-	 currentJoystickState = ECinemotusJoystickState::ESpeed;
+	 currentJoystickState = ECinemotusJoystickState::EYawCrane;
 	 fSpeedMulitplier = 1.0f;
 	 joystickHeaderText = ECinemotusJoystickState::ToString(currentJoystickState);
 	 joystickVerboseText = BuildVerboseJoystickText(currentJoystickState);
@@ -42,6 +42,9 @@ ACinemotusPlayerController::ACinemotusPlayerController(const class FPostConstruc
 FString ACinemotusPlayerController::BuildVerboseJoystickText(const uint8 state) const
 {
 	FString retVal = TEXT("UNKNOWN");
+
+	retVal = FString::Printf(TEXT("Current Speed Multiplier: %10.4f"), fSpeedMulitplier);
+	return retVal;
 	switch (state)
 	{
 	case ECinemotusJoystickState::ESpeed:
@@ -322,7 +325,13 @@ void ACinemotusPlayerController::HandleJoysticks(FVector2D joyPos)
 }
 
 
-
+void ACinemotusPlayerController::UpdateSpeedMultiplier(bool increment)
+{
+	float multip = increment ? 2 : 0.5f;
+	fSpeedMulitplier *= multip;
+	//clamp
+	fSpeedMulitplier = FMath::Clamp(fSpeedMulitplier, 0.00625f, 16.0f);
+}
 
 
 void ACinemotusPlayerController::UpdateSpeedMultiplier(float val)
@@ -357,6 +366,7 @@ void ACinemotusPlayerController::UpdateSpeedMultiplier(float val)
 	fSpeedMulitplier = FMath::Clamp(fSpeedMulitplier, 0.00625f, 16.0f);
 
 }
+
 
 
 void ACinemotusPlayerController::PlayerTick(float DeltaTime)
@@ -412,7 +422,7 @@ void ACinemotusPlayerController::BeginPlay()
 
 	for (auto Actor : FoundActors)
 	{
-		APawn* pwn = Cast<APawn>(Actor);
+		ACinemotusDefaultPawn* pwn = Cast<ACinemotusDefaultPawn>(Actor);
 		if (pwn)
 		{
 			PawnsInScene.Add(pwn);
@@ -437,17 +447,40 @@ void ACinemotusPlayerController::BeginPlay()
 
 void ACinemotusPlayerController::HydraB1Released(int32 controllerNum)//translation
 {
-	HandleJoystickStateChange(ECinemotusJoystickState::EPlanarMovement);
+	if (controllerNum != CAM_HAND)
+	{
+		currentCaptureState = (currentCaptureState & ECinemotusCaptureState::EABSOLUTE) ? ECinemotusCaptureState::ERelativeOff : ECinemotusCaptureState::EAbsoluteOff;
+	}
+	else
+	{
+		OnSwichPawn(false);
+	}
+	//HandleJoystickStateChange(ECinemotusJoystickState::EPlanarMovement);
 }
 void ACinemotusPlayerController::HydraB2Released(int32 controllerNum) //speed
 {
+	if (controllerNum != CAM_HAND)
+	{
+		UpdateSpeedMultiplier(false);
+	}
+	else
+	{
 
-	HandleJoystickStateChange(ECinemotusJoystickState::ESpeed);
+	}
+	//HandleJoystickStateChange(ECinemotusJoystickState::ESpeed);
 }
 void ACinemotusPlayerController::HydraB3Released(int32 controllerNum)//yaw crane
 {
 
-	HandleJoystickStateChange(ECinemotusJoystickState::EYawCrane);
+	if (controllerNum != CAM_HAND)
+	{
+		currentCaptureState = (currentCaptureState & ECinemotusCaptureState::EABSOLUTE) ? ECinemotusCaptureState::ERelativeOff : ECinemotusCaptureState::EAbsoluteOff;
+	}
+	else
+	{
+		OnSwichPawn(true);
+	}
+	//HandleJoystickStateChange(ECinemotusJoystickState::EYawCrane);
 }
 
 void ACinemotusPlayerController::HydraJoystickReleased(int32 controllerNum)
@@ -458,7 +491,15 @@ void ACinemotusPlayerController::HydraJoystickReleased(int32 controllerNum)
 
 void ACinemotusPlayerController::HydraB4Released(int32 controllerNum)
 {
-	currentCaptureState = (currentCaptureState & ECinemotusCaptureState::EABSOLUTE) ? ECinemotusCaptureState::ERelativeOff : ECinemotusCaptureState::EAbsoluteOff;
+	if (controllerNum != CAM_HAND)
+	{
+		UpdateSpeedMultiplier(true);
+	}
+	else
+	{
+
+	}
+	//currentCaptureState = (currentCaptureState & ECinemotusCaptureState::EABSOLUTE) ? ECinemotusCaptureState::ERelativeOff : ECinemotusCaptureState::EAbsoluteOff;
 
 }
 
@@ -502,7 +543,7 @@ void ACinemotusPlayerController::HydraControllerMoved(int32 controller,
 
 }
 
-void ACinemotusPlayerController::OnSwichPawn()
+void ACinemotusPlayerController::OnSwichPawn(bool increase = true)
 {
 	//Get Current Pawn's rotation?
 
@@ -512,7 +553,14 @@ void ACinemotusPlayerController::OnSwichPawn()
 	}
 	FString PowerLevelString = FString::Printf(TEXT("%d"), PawnsInScene.Num());
 	GEngine->AddOnScreenDebugMessage(-1, .5f, FColor::Yellow, PowerLevelString);
-	currentPawnIndex = currentPawnIndex + 1 < PawnsInScene.Num() ? currentPawnIndex + 1 : 0;
+	if (increase)
+	{
+		currentPawnIndex = currentPawnIndex + 1 < PawnsInScene.Num() ? currentPawnIndex + 1 : 0;
+	}
+	else
+	{
+		currentPawnIndex = currentPawnIndex - 1 < 0 ? PawnsInScene.Num() - 1 : currentPawnIndex - 1;
+	}
 	APawn* nextPawn = PawnsInScene[currentPawnIndex];
 	
 	Possess(nextPawn);
@@ -530,15 +578,7 @@ void ACinemotusPlayerController::HydraStartReleased(int32 controllerNum)
 
 }
 
-void ACinemotusPlayerController::HydraB1Pressed(int32 controllerNum)
-{
 
-
-	
-
-
-
-}
 
 
 

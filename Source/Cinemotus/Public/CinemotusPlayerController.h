@@ -99,7 +99,7 @@ class CINEMOTUS_API ACinemotusPlayerController : public APlayerController, publi
 	virtual void SetupInputComponent() override;
 
 	UFUNCTION(BlueprintCallable, Category = Pawn)
-	void OnSwichPawn();
+		void OnSwichPawn(bool increase);
 
 
 	//FROM HydraDelegate
@@ -127,7 +127,7 @@ class CINEMOTUS_API ACinemotusPlayerController : public APlayerController, publi
 
 
 	virtual void HydraStartReleased(int32 controllerNum)override;
-	virtual void HydraB1Pressed(int32 controllerNum) override;
+	
 
 	virtual void HydraTriggerPressed(int32 controllerNum) override;
 	virtual void HydraTriggerReleased(int32 controllerNum) override;
@@ -177,6 +177,7 @@ protected:
 	bool bHydraVerboseHUD;
 	float fSpeedMulitplier;
 	void UpdateSpeedMultiplier(float val);
+	void UpdateSpeedMultiplier(bool increase);
 
 	
 private:
