@@ -5,6 +5,8 @@
 #include "GameFramework/DefaultPawn.h"
 #include "CinemotusDefaultPawn.generated.h"
 
+class UCineSceneComponent;
+
 /**
  * 
  */
@@ -16,6 +18,9 @@ class CINEMOTUS_API ACinemotusDefaultPawn : public ADefaultPawn
 	/** Follow camera */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera)
 	TSubobjectPtr<class UCameraComponent> camera0;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Cinemotus)
+		TSubobjectPtr<class UCineSceneComponent> cineDataComponent;
 
 	//make a dolly struct Speed / Yaw  / Crane / planar movement
 	//make a cam struct Orientation / position

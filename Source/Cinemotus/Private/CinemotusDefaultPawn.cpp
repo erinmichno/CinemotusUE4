@@ -5,6 +5,8 @@
 #include "CineCharacterMovementComponent.h"
 #include "GameFramework/FloatingPawnMovement.h"
 #include "GameFramework/PlayerInput.h"
+#include "CineSceneComponent.h"
+
 
 //#include "HydraPlugin.h"
 
@@ -32,6 +34,9 @@ ACinemotusDefaultPawn::ACinemotusDefaultPawn(const class FPostConstructInitializ
 	/*bUseControllerRotationPitch = false;
 	bUseControllerRotationYaw = false;
 	bUseControllerRotationRoll = false;*/
+
+	cineDataComponent = PCIP.CreateDefaultSubobject<UCineSceneComponent>(this, TEXT("cineData0"));
+	cineDataComponent->AttachTo(RootComponent);
 
 	camera0->bUseControllerViewRotation = true;
 

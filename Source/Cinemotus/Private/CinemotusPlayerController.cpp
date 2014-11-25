@@ -178,10 +178,6 @@ void ACinemotusPlayerController::HandleMovementAbs(float DeltaTime, bool useHydr
 		velRel.X = FVector::DotProduct(cMat.GetScaledAxis(EAxis::X), velocity);
 		velRel.Y = FVector::DotProduct(cMat.GetScaledAxis(EAxis::Y), velocity);
 		velRel.Z = FVector::DotProduct(cMat.GetScaledAxis(EAxis::Z), velocity); //take motion and make relative to the orientation of the controller
-
-
-
-
 	}
 	//velocity.X*DeltaTime * scaleCmToMetres*fSpeedMulitplier +
 
@@ -219,6 +215,9 @@ void ACinemotusPlayerController::AbsoluteTick(float DeltaTime)
 	
 	TotalYawAbs += addYaw;
 	UPrimitiveComponent* prim = GetPawn()->GetMovementComponent()->UpdatedComponent;
+	//USceneComponent* sComponent = GetPawn()->GetRootComponent();
+	//sComponent->SetRelativeLocation;
+
 	bool SetPrimDirectly = true;
 	FQuat finalQuat;
 
@@ -471,7 +470,7 @@ void ACinemotusPlayerController::HydraB2Released(int32 controllerNum) //speed
 }
 void ACinemotusPlayerController::HydraB3Released(int32 controllerNum)//yaw crane
 {
-
+	
 	if (controllerNum != CAM_HAND)
 	{
 		currentCaptureState = (currentCaptureState & ECinemotusCaptureState::EABSOLUTE) ? ECinemotusCaptureState::ERelativeOff : ECinemotusCaptureState::EAbsoluteOff;
@@ -547,7 +546,7 @@ void ACinemotusPlayerController::OnSwichPawn(bool increase = true)
 {
 	//Get Current Pawn's rotation?
 
-	if (PawnsInScene.Num() < 2)
+	if (PawnsInScene.Num() < 1)
 	{
 		return;
 	}
