@@ -8,6 +8,25 @@ UCineSceneComponent::UCineSceneComponent(const class FPostConstructInitializePro
 	: Super(PCIP)
 {
 	LayerNumber = 1024;
+	relativeScaleFactor = 1.0f;
+	joystickScaleFactor = 1.0f;
 }
 
 
+float UCineSceneComponent::GetScaleFactor() const
+{
+	return relativeScaleFactor;
+}
+void UCineSceneComponent::SetScaleFactor(float s)
+{
+	relativeScaleFactor = s;
+}
+
+float UCineSceneComponent::GetJoystickScaleFactor()const
+{
+	return joystickScaleFactor;
+}
+void UCineSceneComponent::SetJoystickScaleFactor(float s)
+{
+	joystickScaleFactor = s;
+}

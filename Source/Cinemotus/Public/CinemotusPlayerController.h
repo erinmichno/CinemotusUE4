@@ -98,9 +98,29 @@ class CINEMOTUS_API ACinemotusPlayerController : public APlayerController, publi
 	virtual void PlayerTick(float DeltaTime) override;
 	virtual void SetupInputComponent() override;
 
-	UFUNCTION(BlueprintCallable, Category = Pawn)
-		void OnSwichPawn(bool increase);
+	UFUNCTION(BlueprintCallable, Category = Cinemotus)
+		void OnSwichPawn(bool increase = true);
 
+	UFUNCTION(BlueprintCallable, Category = Cinemotus)
+		void SetCineData(AActor* currentActor);
+
+	UFUNCTION(BlueprintCallable, Category = Cinemotus)
+		void GetCineData(AActor* currentActor);
+
+	UFUNCTION(BlueprintCallable, Category = Cinemotus)
+	void AddCinePawn();
+
+	UFUNCTION(BlueprintCallable, Category = Cinemotus)
+		int32 GetPawnListIndex(APawn* p);
+
+	UFUNCTION(BlueprintCallable, Category = Cinemotus)
+	void SortPawnInSceneList();
+
+
+	UFUNCTION(BlueprintCallable, Category = Cinemotus)
+	void SwitchToPawn(APawn* p);
+
+	
 
 	//FROM HydraDelegate
 	//Callable Blueprint functions - Need to be defined for direct access
@@ -176,9 +196,11 @@ protected:
 
 	bool bHydraVerboseHUD;
 	float fSpeedMulitplier;
+	float fJoystickMultiplier;
 	void UpdateSpeedMultiplier(float val);
-	void UpdateSpeedMultiplier(bool increase);
+	void UpdateSpeedMultiplier(bool increase, float & val);
 
+	
 	
 private:
 	TArray<APawn*> PawnsInScene;

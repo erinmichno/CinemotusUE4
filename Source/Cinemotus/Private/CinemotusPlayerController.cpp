@@ -6,6 +6,7 @@
 #include "Engine.h"
 #include "CinemotusDefaultPawn.h"
 #include "CinemotusGameMode.h"
+#include "CineSceneComponent.h"
 //#include "HyrdaSingleController.h"
 #include "Kismet/GameplayStatics.h"
 
@@ -24,6 +25,7 @@ ACinemotusPlayerController::ACinemotusPlayerController(const class FPostConstruc
 	 currentCaptureState = ECinemotusCaptureState::ERelativeOff;
 	 currentJoystickState = ECinemotusJoystickState::EYawCrane;
 	 fSpeedMulitplier = 1.0f;
+	 fJoystickMultiplier = 1.0f;
 	 joystickHeaderText = ECinemotusJoystickState::ToString(currentJoystickState);
 	 joystickVerboseText = BuildVerboseJoystickText(currentJoystickState);
 	 /*ViewPitchMin = -89.9f;
@@ -43,7 +45,7 @@ FString ACinemotusPlayerController::BuildVerboseJoystickText(const uint8 state) 
 {
 	FString retVal = TEXT("UNKNOWN");
 
-	retVal = FString::Printf(TEXT("Current Speed Multiplier: %10.4f"), fSpeedMulitplier);
+	retVal = FString::Printf(TEXT("Speed Multiplier: %10.4f and JoystickMultiplier %10.4f"), fSpeedMulitplier, fJoystickMultiplier);
 	return retVal;
 	switch (state)
 	{
@@ -123,7 +125,7 @@ void ACinemotusPlayerController::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 	HydraTick(DeltaTime);
-	joystickHeaderText = ECinemotusJoystickState::ToString(currentJoystickState);
+	//joystickHeaderText = ECinemotusJoystickState::ToString(currentJoystickState);
 	joystickVerboseText = BuildVerboseJoystickText(currentJoystickState);
 }
 
@@ -171,7 +173,7 @@ void ACinemotusPlayerController::HandleMovementAbs(float DeltaTime, bool useHydr
 	FVector velocity = useHydraMotion ? HydraLatestData->controllers[CAM_HAND].velocity : FVector::ZeroVector;
 	FVector velRel = FVector(velocity);
 	FRotationMatrix mat(GetControlRotation());
-	float scaleCmToMetres = 10;
+	float scalar = 2.5;
 	if (useHydraMotion)
 	{
 		FRotationMatrix cMat(HydraLatestData->controllers[CAM_HAND].rotation);
@@ -181,9 +183,9 @@ void ACinemotusPlayerController::HandleMovementAbs(float DeltaTime, bool useHydr
 	}
 	//velocity.X*DeltaTime * scaleCmToMetres*fSpeedMulitplier +
 
-	pawn->AddMovementInput(mat.GetScaledAxis(EAxis::X), velRel.X*DeltaTime * scaleCmToMetres*fSpeedMulitplier + vXYandCrane.X);
-	pawn->AddMovementInput(mat.GetScaledAxis(EAxis::Y), velRel.Y*DeltaTime * scaleCmToMetres*fSpeedMulitplier + vXYandCrane.Y);
-	pawn->AddMovementInput(mat.GetScaledAxis(EAxis::Z), velRel.Z*DeltaTime * scaleCmToMetres*fSpeedMulitplier);
+	pawn->AddMovementInput(mat.GetScaledAxis(EAxis::X), velRel.X*DeltaTime * scalar*fSpeedMulitplier + vXYandCrane.X);
+	pawn->AddMovementInput(mat.GetScaledAxis(EAxis::Y), velRel.Y*DeltaTime * scalar*fSpeedMulitplier + vXYandCrane.Y);
+	pawn->AddMovementInput(mat.GetScaledAxis(EAxis::Z), velRel.Z*DeltaTime * scalar*fSpeedMulitplier);
 	pawn->AddMovementInput(FVector::UpVector, vXYandCrane.Z);
 
 
@@ -284,8 +286,8 @@ void ACinemotusPlayerController::HandleOffHandJoysticks(FVector2D joyPos)
 {
 	offHandPlanarMovement = FVector::ZeroVector;
 	float DeltaTime = GetWorld()->GetDeltaSeconds();
-	offHandPlanarMovement.X += joyPos.Y*DeltaTime*fSpeedMulitplier*200.0f;
-	offHandPlanarMovement.Y += joyPos.X*DeltaTime*fSpeedMulitplier*200.0f;
+	offHandPlanarMovement.X += joyPos.Y*DeltaTime*fJoystickMultiplier*50.0f;
+	offHandPlanarMovement.Y += joyPos.X*DeltaTime*fJoystickMultiplier*50.0f;
 }
 
 void ACinemotusPlayerController::HandleJoysticks(FVector2D joyPos)
@@ -301,8 +303,8 @@ void ACinemotusPlayerController::HandleJoysticks(FVector2D joyPos)
 		break;
 	case ECinemotusJoystickState::EPlanarMovement:
 		//
-		vXYandCrane.X += joyPos.Y*DeltaTime*fSpeedMulitplier*200.0f;
-		vXYandCrane.Y += joyPos.X*DeltaTime*fSpeedMulitplier*200.0f;
+		vXYandCrane.X += joyPos.Y*DeltaTime*fJoystickMultiplier*50.0f;
+		vXYandCrane.Y += joyPos.X*DeltaTime*fJoystickMultiplier*50.0f;
 		break;
 	case ECinemotusJoystickState::EYawCrane:
 	{
@@ -313,7 +315,7 @@ void ACinemotusPlayerController::HandleJoysticks(FVector2D joyPos)
 		}
 		else
 		{
-			vXYandCrane.Z += joyPos.Y*DeltaTime*fSpeedMulitplier*200.0f;
+			vXYandCrane.Z += joyPos.Y*DeltaTime*fJoystickMultiplier*50.0f;
 		}
 	}
 		//
@@ -324,12 +326,12 @@ void ACinemotusPlayerController::HandleJoysticks(FVector2D joyPos)
 }
 
 
-void ACinemotusPlayerController::UpdateSpeedMultiplier(bool increment)
+void ACinemotusPlayerController::UpdateSpeedMultiplier(bool increment, float & refSpeedMultiplier)
 {
 	float multip = increment ? 2 : 0.5f;
-	fSpeedMulitplier *= multip;
+	refSpeedMultiplier *= multip;
 	//clamp
-	fSpeedMulitplier = FMath::Clamp(fSpeedMulitplier, 0.00625f, 16.0f);
+	refSpeedMultiplier = FMath::Clamp(refSpeedMultiplier, 0.00625f, 16.0f);
 }
 
 
@@ -375,7 +377,7 @@ void ACinemotusPlayerController::PlayerTick(float DeltaTime)
 		bumperTapTimer -= DeltaTime;
 	}
 
-	//GET JOYSTICK DATA
+	
 	
 	HandleJoysticks(HydraLatestData->controllers[CAM_HAND].joystick);
 	HandleOffHandJoysticks(HydraLatestData->controllers[CAM_HAND == 0 ? 1 : 0].joystick);
@@ -401,9 +403,99 @@ void ACinemotusPlayerController::SetupInputComponent()
 
 	//InputComponent->BindAction("NextPawn", IE_Pressed, this, &ACinemotusPlayerController::OnSwichPawn);
 	//InputComponent->BindAction("SetDestination", IE_Released, this, &AMyProject2PlayerController::OnSetDestinationReleased);
+
+	UPlayerInput::AddEngineDefinedActionMapping(FInputActionKeyMapping("Cine_CreateCam", EKeysHydra::HydraRightJoystickClick));
+	UPlayerInput::AddEngineDefinedActionMapping(FInputActionKeyMapping("Cine_CreateCam", EKeysHydra::HydraLeftJoystickClick));
+	InputComponent->BindAction("Cine_CreateCam", IE_Pressed, this, &ACinemotusPlayerController::AddCinePawn);
+}
+
+void ACinemotusPlayerController::AddCinePawn()
+{
+//	pawnToAdd->
+	APawn* pawnToAdd = NULL;
+
+	int newIndex = 0;
+	while (newIndex < PawnsInScene.Num() &&!PawnsInScene[newIndex]->bHidden)
+	{
+		newIndex++;
+	}//keep going till we find a  hidden one
+
+	if (newIndex >= PawnsInScene.Num())
+	{
+		//add a dude
+		UWorld* const World = GetWorld();
+		if (World)
+		{
+			// Set the spawn parameters
+			FActorSpawnParameters SpawnParams;
+			SpawnParams.Owner = this;
+			SpawnParams.Instigator = Instigator;
+
+			// Get a random location to spawn at
+			FVector SpawnLocation = GetPawn()->GetActorLocation();
+			// Get a random rotation for the spawned item
+			FRotator SpawnRotation = GetPawn()->GetActorRotation();
+			// spawn the pickup
+			pawnToAdd = GetWorld()->SpawnActor<ACinemotusDefaultPawn>(ACinemotusDefaultPawn::StaticClass(), SpawnLocation, SpawnRotation, SpawnParams);
+		}
+		
+	}
+	else
+	{
+		pawnToAdd = PawnsInScene[newIndex];
+		APawn* pwn = GetPawn();
+		pawnToAdd->SetActorLocationAndRotation(pwn->GetActorLocation(), pwn->GetActorRotation()); //make this one added to where we are right now
+
+	}
+
+
+	
+
+	pawnToAdd->SetActorTickEnabled(true);
+	pawnToAdd->SetActorEnableCollision(true);
+	pawnToAdd->SetActorHiddenInGame(false);
+	
+	SwitchToPawn(pawnToAdd);
+
+	
 }
 
 
+int32 ACinemotusPlayerController::GetPawnListIndex(APawn* p)
+{
+	int32 retVal = -1;
+	for (int i = 0; i < PawnsInScene.Num(); ++i)
+	{
+		if (PawnsInScene[i] == p)
+		{
+			retVal = i;
+			break;
+		}
+	}
+	return retVal;
+}
+
+void ACinemotusPlayerController::SortPawnInSceneList()
+{
+	PawnsInScene.Sort(
+		[](const APawn & a, const APawn  & b)
+	{
+		const UCineSceneComponent* cineDataA = a.FindComponentByClass<UCineSceneComponent>();
+
+		if (cineDataA != NULL)
+		{
+			const UCineSceneComponent* cineDataB = b.FindComponentByClass<UCineSceneComponent>();
+			if (cineDataB != NULL)
+			{
+				return cineDataA->LayerNumber < cineDataB->LayerNumber;
+			}
+			return true;
+		}
+		return false;
+	}
+
+	);
+}
 
 void ACinemotusPlayerController::BeginPlay()
 {
@@ -425,23 +517,53 @@ void ACinemotusPlayerController::BeginPlay()
 		if (pwn)
 		{
 			PawnsInScene.Add(pwn);
+			UCineSceneComponent* cineDataA = pwn->FindComponentByClass<UCineSceneComponent>();
+			cineDataA->LayerNumber = rand(); //just give random for now
+
 		}
 	}
+	
+	PawnsInScene.Sort(
+		[](const APawn & a, const APawn  & b)
+	{
+		const UCineSceneComponent* cineDataA = a.FindComponentByClass<UCineSceneComponent>();
+
+		if (cineDataA != NULL)
+		{
+			const UCineSceneComponent* cineDataB = b.FindComponentByClass<UCineSceneComponent>();
+			if (cineDataB != NULL)
+			{
+				return cineDataA->LayerNumber < cineDataB->LayerNumber;
+			}
+			return true;
+		}
+		return false;
+	}
+		
+		);
 
 	APawn* currentPawn = GetPawn();
 	
 	currentPawnIndex = 0;
+
+
 	for (int i = 0; i < PawnsInScene.Num(); ++i)
 	{
 		if (PawnsInScene[i] == currentPawn)
 		//if (PawnsInScene[i]->ActorHasTag(TEXT("CinemotusCharacter")))
 		{
-			currentPawnIndex = i;
+			currentPawnIndex = i -1;
+			if (currentPawnIndex < 0)
+			{
+				currentPawnIndex = PawnsInScene.Num() - 1;
+			}
 			break;
 		}
 	}
 
 	possessedCinePawn = Cast<ACinemotusDefaultPawn>(GetPawn());
+
+	OnSwichPawn();
 }
 
 void ACinemotusPlayerController::HydraB1Released(int32 controllerNum)//translation
@@ -460,12 +582,15 @@ void ACinemotusPlayerController::HydraB2Released(int32 controllerNum) //speed
 {
 	if (controllerNum != CAM_HAND)
 	{
-		UpdateSpeedMultiplier(false);
+		UpdateSpeedMultiplier(false, fJoystickMultiplier);
+		
+		//set 
 	}
 	else
 	{
-
+		UpdateSpeedMultiplier(false, fSpeedMulitplier);
 	}
+	SetCineData(GetPawn());
 	//HandleJoystickStateChange(ECinemotusJoystickState::ESpeed);
 }
 void ACinemotusPlayerController::HydraB3Released(int32 controllerNum)//yaw crane
@@ -492,12 +617,14 @@ void ACinemotusPlayerController::HydraB4Released(int32 controllerNum)
 {
 	if (controllerNum != CAM_HAND)
 	{
-		UpdateSpeedMultiplier(true);
+		UpdateSpeedMultiplier(true, fJoystickMultiplier);
 	}
 	else
 	{
-
+		UpdateSpeedMultiplier(true, fSpeedMulitplier);
 	}
+	SetCineData(GetPawn());
+
 	//currentCaptureState = (currentCaptureState & ECinemotusCaptureState::EABSOLUTE) ? ECinemotusCaptureState::ERelativeOff : ECinemotusCaptureState::EAbsoluteOff;
 
 }
@@ -542,7 +669,7 @@ void ACinemotusPlayerController::HydraControllerMoved(int32 controller,
 
 }
 
-void ACinemotusPlayerController::OnSwichPawn(bool increase = true)
+void ACinemotusPlayerController::OnSwichPawn(bool increase)
 {
 	//Get Current Pawn's rotation?
 
@@ -550,24 +677,95 @@ void ACinemotusPlayerController::OnSwichPawn(bool increase = true)
 	{
 		return;
 	}
-	FString PowerLevelString = FString::Printf(TEXT("%d"), PawnsInScene.Num());
-	GEngine->AddOnScreenDebugMessage(-1, .5f, FColor::Yellow, PowerLevelString);
-	if (increase)
+	FString numstr = FString::Printf(TEXT("%d"), PawnsInScene.Num());
+	GEngine->AddOnScreenDebugMessage(-1, .5f, FColor::Yellow, numstr);
+	int startIndex = currentPawnIndex;
+	do
 	{
-		currentPawnIndex = currentPawnIndex + 1 < PawnsInScene.Num() ? currentPawnIndex + 1 : 0;
-	}
-	else
-	{
-		currentPawnIndex = currentPawnIndex - 1 < 0 ? PawnsInScene.Num() - 1 : currentPawnIndex - 1;
-	}
+		if (increase)
+		{
+			currentPawnIndex = currentPawnIndex + 1 < PawnsInScene.Num() ? currentPawnIndex + 1 : 0;
+		}
+		else
+		{
+			currentPawnIndex = currentPawnIndex - 1 < 0 ? PawnsInScene.Num() - 1 : currentPawnIndex - 1;
+		}
+	} while (PawnsInScene[currentPawnIndex]->bHidden && currentPawnIndex != startIndex); //keep going till we find a non hidden one
 	APawn* nextPawn = PawnsInScene[currentPawnIndex];
 	
 	Possess(nextPawn);
 	SetViewTargetWithBlend(nextPawn, 0.0f);
 	possessedCinePawn = Cast<ACinemotusDefaultPawn>(nextPawn);
-	
+	//GET JOYSTICK DATA
+	GetCineData(GetPawn());
 
+}
 
+void ACinemotusPlayerController::SwitchToPawn(APawn* p)
+{
+
+	int pawnIndex = GetPawnListIndex(p);
+	if (pawnIndex == -1)//not in list
+	{
+		//add
+		PawnsInScene.Add(p);
+
+	}
+
+	SortPawnInSceneList();//incase layer change
+	Possess(p);
+	SetViewTargetWithBlend(p, 0.0f);
+	possessedCinePawn = Cast<ACinemotusDefaultPawn>(p);
+	//GET JOYSTICK DATA
+	GetCineData(GetPawn());
+}
+
+void ACinemotusPlayerController::SetCineData(AActor* currentActor)
+{
+	UCineSceneComponent* cineData = currentActor->FindComponentByClass<UCineSceneComponent>();
+	if (cineData != NULL)
+	{
+		cineData->SetScaleFactor(fSpeedMulitplier);
+		cineData->SetJoystickScaleFactor(fJoystickMultiplier);
+	}
+	else
+	{
+		//todo: add cine component
+		//UCineSceneComponent* cineData = 
+		/*
+
+		void AYourActor::CreateComponent(UClass* CompClass,const FVector& Location, const FRotator& Rotation, const FName& AttachSocket=NAME_None)
+		{
+		FName YourObjectName("Hiiii");
+
+		//CompClass can be a BP
+		UPrimitiveComponent* NewComp = ConstructObject<UPrimitiveComponent>( CompClass, this, YourObjectName);
+		if(!NewComp)
+		{
+		return NULL;
+		}
+		//~~~~~~~~~~~~~
+
+		NewComp->RegisterComponent();        //You must ConstructObject with a valid Outer that has world, see above
+		NewComp->SetWorldLocation(Location);
+		NewComp->SetWorldRotation(Rotation);
+		NewComp->AttachTo(GetRootComponent(),SocketName,EAttachLocation::KeepWorldPosition);
+		//could use different than Root Comp
+		}
+		*/
+	}
+}
+
+void ACinemotusPlayerController::GetCineData(AActor* currentActor)
+{
+	UCineSceneComponent* cineData = currentActor->FindComponentByClass<UCineSceneComponent>();
+	if (cineData != NULL)
+	{
+		//Get the data
+		fSpeedMulitplier = cineData->GetScaleFactor();
+		fJoystickMultiplier = cineData->GetJoystickScaleFactor();
+		joystickHeaderText = cineData->GetOwner()->GetName();
+	}
 }
 
 void ACinemotusPlayerController::HydraStartReleased(int32 controllerNum)

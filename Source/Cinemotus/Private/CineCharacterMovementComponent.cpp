@@ -10,7 +10,7 @@ UCineCharacterMovementComponent::UCineCharacterMovementComponent(const class FPo
 {
 	RotationRate.Yaw = 30.0f;
 	bRotationInLocalSpace = false;
-	MaxSpeed = 1200.0f;
+	MaxSpeed = 3000.0f;
 
 	
 }

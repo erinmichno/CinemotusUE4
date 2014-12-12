@@ -38,7 +38,7 @@ ACinemotusDefaultPawn::ACinemotusDefaultPawn(const class FPostConstructInitializ
 	cineDataComponent = PCIP.CreateDefaultSubobject<UCineSceneComponent>(this, TEXT("cineData0"));
 	cineDataComponent->AttachTo(RootComponent);
 
-	camera0->bUseControllerViewRotation = true;
+	camera0->bUseControllerViewRotation = true; //bUsePawnControlRotation
 
 	//camera0->RelativeRotation;
 

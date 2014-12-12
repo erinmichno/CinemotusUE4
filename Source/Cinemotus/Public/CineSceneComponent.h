@@ -16,15 +16,18 @@ class CINEMOTUS_API UCineSceneComponent : public USceneComponent
 	float GetScaleFactor() const;
 	void SetScaleFactor(float s);
 
+	float GetJoystickScaleFactor()const;
+	void SetJoystickScaleFactor(float s);
+
 	/** the layer value of camera if order dependent. */
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Cinemotus)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Cinemotus)
 	float LayerNumber;
 
 	//if needed a get/ create if no found cam component / parent etc
 		
 protected:
 	float relativeScaleFactor;
-
+	float joystickScaleFactor;
 	
 	
 };
